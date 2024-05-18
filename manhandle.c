@@ -117,6 +117,7 @@ int execute_decision(int page) {
     if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
         return mc_execute_decision(page);
     }
+    return 0;
 }
 
 int main(int argc, char *argv[]) {
