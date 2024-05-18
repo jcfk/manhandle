@@ -138,7 +138,5 @@ int main(int argc, char *argv[]) {
     state_free();
     options_free();
     exit(state_of_gui.exit_code);
-
-    return 0;
 }
 
