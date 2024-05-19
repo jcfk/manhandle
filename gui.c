@@ -68,6 +68,11 @@ void print_menu(void) {
 }
 
 void display_file(void) {
+    if (!opts.file_display) {
+        messenger("No display command given (--file-display).");
+        return;
+    }
+
     /* todo: capture cursor here */
 
     def_prog_mode();
