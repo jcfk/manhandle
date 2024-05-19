@@ -44,19 +44,22 @@ void mc_print_menu(void) {
     int x;
     getyx(state_of_curses.main_win, y, x);
 
+    int keys[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     int j = 2;
+    int key;
     char c;
     for (int i = 0; i < 10; i++) {
-        if (opts.pd_opts.mc.choices[i].cmd) {
+        key = keys[i];
+        if (opts.pd_opts.mc.choices[key].cmd) {
             if (state_of_decisions.files[state_of_gui.page].complete && 
-                state_of_decisions.files[state_of_gui.page].decision.mc.n == i
+                state_of_decisions.files[state_of_gui.page].decision.mc.n == key
             ) {
                 c = '*';
             } else {
                 c = ' ';
             }
-            mvwprintw(state_of_curses.main_win, y+j, 0, " %c%d) '%s'", c, i,
-                opts.pd_opts.mc.choices[i].cmd);
+            mvwprintw(state_of_curses.main_win, y+j, 0, " %c%d) '%s'", c, key,
+                opts.pd_opts.mc.choices[key].cmd);
             j += 1;
         }
     }
