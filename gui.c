@@ -14,6 +14,9 @@ void state_initialize(char *files[], int file_count) {
 
 void state_free() {
     free(state_of_gui.message);
+    if (state_of_gui.rip_message)
+        free(state_of_gui.rip_message);
+
     for (int i = 0; i < state_of_gui.page_count; i++) {
         free(state_of_decisions.files[i].file);
     }

@@ -134,7 +134,9 @@ int main(int argc, char *argv[]) {
     refresh();
     endwin();
 
-    printf("%s", state_of_gui.rip_message);
+    if (state_of_gui.rip_message)
+        printf("%s", state_of_gui.rip_message);
+
     state_free();
     options_free();
     exit(state_of_gui.exit_code);
