@@ -127,16 +127,15 @@ void mc_handle_key(char key) {
         }
     }
 
-    /* ugly */
-    if (state_of_gui.page < state_of_gui.page_count-1) {
+    if (state_of_gui.page < state_of_gui.page_count-1)
         nav_next();
-    } else {
+
+    if (all_files_complete()) {
         if (opts.execute_immediately) {
             state_of_gui.shall_exit = 1;
             return;
         }
-        state_of_decisions.complete = 1;
-        messenger("End reached. Check progress pager and write out.");
+        messenger("All pages complete. Check progress pager and write out.");
     }
 }
 

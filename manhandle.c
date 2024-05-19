@@ -120,6 +120,15 @@ int execute_decision(int page) {
     return 0;
 }
 
+int all_files_complete(void) {
+    for (int i = 0; i < state_of_gui.page_count; i++) {
+        if (!state_of_decisions.files[i].complete) {
+            return 0;
+        }
+    }
+    return 1;
+}
+
 int main(int argc, char *argv[]) {
     int i = options_parse(argc, argv);
     char **files = argv+i;

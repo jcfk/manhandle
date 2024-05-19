@@ -32,7 +32,6 @@ struct state_of_file {
 };
 
 struct state_of_decisions {
-    int complete;
     struct state_of_file *files;
 };
 
@@ -89,6 +88,7 @@ void print_help(void);
 int options_parse(int argc, char *argv[]);
 void options_free(void);
 int execute_decision(int page);
+int all_files_complete(void);
 int main(int argc, char *argv[]);
 void mc_options_parse(int argc, char *argv[], int *i);
 void mc_options_free(void);
