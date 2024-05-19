@@ -242,9 +242,11 @@ void handle_key(char key) {
         case 'q':
             ask_exit();
             break;
+        case (char)KEY_LEFT:
         case 'h':
             nav_prev();
             break;
+        case (char)KEY_RIGHT:
         case 'l':
             nav_next();
             break;
