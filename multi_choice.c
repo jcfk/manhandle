@@ -104,9 +104,8 @@ int mc_execute_decision(int page) {
 void mc_handle_key(char key) {
     int n = key - '0';
 
-    if (n < 0 || 9 < n) {
+    if (n < 0 || 9 < n)
         return;
-    }
 
     if (!opts.pd_opts.mc.choices[n].cmd) {
         messenger("%d) is not a choice.", n);
@@ -121,9 +120,11 @@ void mc_handle_key(char key) {
     state_of_decisions.files[state_of_gui.page].complete = 1;
     state_of_decisions.files[state_of_gui.page].decision.mc.n = n;
 
-    if (opts.execute_immediately && execute_decision(state_of_gui.page)) {
-        state_of_gui.shall_exit = 1;
-        return;
+    if (opts.execute_immediately) {
+        if (execute_decision(state_of_gui.page)) {
+            state_of_gui.shall_exit = 1;
+            return;
+        }
     }
 
     /* ugly */
