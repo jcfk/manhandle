@@ -113,7 +113,7 @@ void mc_handle_key(char key) {
     }
 
     if (opts.execute_immediately && state_of_decisions.files[state_of_gui.page].complete) {
-        messenger("page %d already complete.", state_of_gui.page);
+        messenger("Decision for page %d already executed.", state_of_gui.page);
         return;
     }
 
