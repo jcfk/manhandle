@@ -69,15 +69,15 @@ void mc_print_menu(void) {
 char *mc_progress(void) {
     char *lines;
     char *line;
-    int n;
     asprintf(&lines, "Page  Choice  File\n");
-    for (int i = 0; i < state_of_gui.page_count; i+=1) {
+    for (int i = 0; i < state_of_gui.page_count; i++) {
         if (state_of_decisions.files[i].complete) {
             asprintf(&line, "%-5d %-7d %s\n", i+1,
                 state_of_decisions.files[i].decision.mc.n,
                 state_of_decisions.files[i].file);
         } else {
-            asprintf(&line, "%-5d         %s\n", i+1, state_of_decisions.files[i].file);
+            asprintf(&line, "%-5d         %s\n", i+1,
+                     state_of_decisions.files[i].file);
         }
         lines = realloc(lines, strlen(lines) + strlen(line)*sizeof(char));
         strcat(lines, line);
