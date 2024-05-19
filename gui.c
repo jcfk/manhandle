@@ -101,8 +101,18 @@ void pager_file(void) {
     wrefresh(state_of_curses.msg_win);
 }
 
+/* account for opts.paradigm */
 void pager_help(void) {
-    char *help = "help";
+    char *help = "GUI:\n"
+                 "  key      function\n"
+                 "  q        Quit\n"
+                 "  h/left   Prev page\n"
+                 "  l/right  Next page\n"
+                 "  v        Run --file-pager\n"
+                 "  d        Run --file-display\n"
+                 "  p        Progress pager\n"
+                 "  w        Write out decisions\n"
+                 "  ?        Help pager\n";
     pager(help);
 }
 
