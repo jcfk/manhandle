@@ -196,13 +196,19 @@ int ask(char *fmt, ...) {
 }
 
 void nav_prev(void) {
-    if (state_of_gui.page > 0)
+    if (state_of_gui.page > 0) {
         state_of_gui.page -= 1;
+    } else if (state_of_gui.page == 0) {
+        messenger("You've reached the beginning.");
+    }
 }
 
 void nav_next(void) {
-    if (state_of_gui.page < state_of_gui.page_count-1)
+    if (state_of_gui.page < state_of_gui.page_count - 1) {
         state_of_gui.page += 1;
+    } else if (state_of_gui.page == state_of_gui.page_count - 1) {
+        messenger("You've reached the end.");
+    }
 }
 
 void ask_write_out(void) {
