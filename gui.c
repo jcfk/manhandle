@@ -165,7 +165,7 @@ int ask(char *fmt, ...) {
     vasprintf(&message, fmt, ap);
 
     wclear(state_of_curses.msg_win);
-    mvwprintw(state_of_curses.msg_win, 0, 0, message);
+    mvwprintw(state_of_curses.msg_win, 0, 0, "%s", message);
     wrefresh(state_of_curses.msg_win);
     free(message);
 
@@ -276,9 +276,9 @@ void gui_loop(void) {
         print_menu();
         wrefresh(state_of_curses.main_win);
 
-        /* print message: state_of_gui.message had better not be NULL! */
+        /* print message */
         wclear(state_of_curses.msg_win);
-        mvwprintw(state_of_curses.msg_win, 0, 0, state_of_gui.message);
+        mvwprintw(state_of_curses.msg_win, 0, 0, "%s", state_of_gui.message);
         wrefresh(state_of_curses.msg_win);
 
         /* get input */
