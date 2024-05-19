@@ -124,8 +124,9 @@ void pager_help(void) {
     pager(help);
 }
 
+/* ugly */
 void pager_progress(void) {
-    char *progress;
+    char *progress = strdup("");
     if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
         progress = mc_progress();
     }
