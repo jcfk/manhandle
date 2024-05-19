@@ -3,7 +3,7 @@
 void state_initialize(char *files[], int file_count) {
     state_of_gui.page = 0;
     state_of_gui.page_count = file_count;
-    asprintf(&state_of_gui.message, "");
+    messenger("");
 
     state_of_decisions.files = malloc(file_count*sizeof(struct state_of_file));
     for (int i = 0; i < file_count; i++) {
