@@ -94,7 +94,7 @@ int mc_execute_decision(int page) {
     if (exit_code) {
         state_of_gui.exit_code = 1;
         asprintf(&state_of_gui.rip_message, 
-            "Page %d/%d failed. Subshell:\n  $ MH_FILE='%s'\n  $ %s\n  exit_code: %d\n", 
+            "Failure during execution of page %d/%d. Subshell:\n  $ MH_FILE='%s'\n  $ %s\n  exit_code: %d\n",
             state_of_gui.page+1, state_of_gui.page_count, file, cmd, exit_code);
     }
 

@@ -214,11 +214,11 @@ void nav_next(void) {
 
 void ask_write_out(void) {
     if (opts.execute_immediately) {
-        messenger("Cannot write out with --execute-immediately.");
+        messenger("Cannot write out due to the presence of --execute-immediately.");
         return;
     }
 
-    if (!ask("Confirm write out? (y/n)"))
+    if (!ask("Confirm execute all decisions and exit? (y/n)"))
         return;
 
     for (int i = 0; i < state_of_gui.page_count; i+=1) {
