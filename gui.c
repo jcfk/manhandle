@@ -127,9 +127,8 @@ void pager_help(void) {
 /* ugly */
 void pager_progress(void) {
     char *progress = strdup("");
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
         progress = mc_progress();
-    }
     pager(progress);
     free(progress);
 }
@@ -270,11 +269,8 @@ void handle_key(char key) {
             break;
         default: 
             /* becoz each paradigm has effectively its own gui */
-            if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+            if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
                 mc_handle_key(key);
-            } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
-                sa_handle_key(key);
-            }
             break;
     }
 }

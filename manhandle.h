@@ -9,7 +9,6 @@
 #include <unistd.h>
 
 #include "multi_choice.h"
-#include "short_answer.h"
 
 struct options {
     int execute_immediately;
@@ -18,7 +17,6 @@ struct options {
     char *paradigm;
     union {
         struct multi_choice_options mc;
-        struct short_answer_options sa;
     } pd_opts;
 };
 
@@ -27,7 +25,6 @@ struct state_of_file {
     char *file;
     union {
         struct mc_decision mc;
-        struct sa_decision sa;
     } decision;
 };
 
@@ -94,4 +91,3 @@ void mc_print_menu(void);
 char *mc_progress(void);
 int mc_execute_decision(int page);
 void mc_handle_key(char key);
-void sa_handle_key(char key);

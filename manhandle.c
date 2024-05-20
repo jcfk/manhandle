@@ -101,17 +101,15 @@ int options_parse(int argc, char *argv[]) {
 }
 
 int execute_decision(int page) {
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
         return mc_execute_decision(page);
-    }
     return 0;
 }
 
 int all_files_complete(void) {
     for (int i = 0; i < state_of_gui.page_count; i++) {
-        if (!state_of_decisions.files[i].complete) {
+        if (!state_of_decisions.files[i].complete)
             return 0;
-        }
     }
     return 1;
 }
