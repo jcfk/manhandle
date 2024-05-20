@@ -19,9 +19,6 @@ void err(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     vfprintf(stderr, fmt, ap);
-
-    state_free();
-    options_free();
     exit(1);
 }
 
@@ -57,8 +54,6 @@ void print_help(void) {
         "    --choice _choice_  Format _choice_ like \"n:cmd\" (eg. 1:rm \"$MH_FILE\") to\n"
         "                       bind digit n ([0-9]) to cmd.\n"
     );
-
-    options_free();
     exit(0);
 }
 
@@ -68,7 +63,7 @@ int options_parse(int argc, char *argv[]) {
         err("paradigm required\n");
 
     /* defaults */
-    opts.file_pager = strdup("stat \"$MH_FILE\"");
+    opts.file_pager = "stat \"$MH_FILE\"";
 
     int i = 1;
     while (i < argc && argv[i][0] == '-') {
@@ -76,12 +71,12 @@ int options_parse(int argc, char *argv[]) {
             if (i+1 == argc)
                 err("option --file-pager takes an argument\n");
             free(opts.file_pager);
-            opts.file_pager = strdup(argv[i+1]);
+            opts.file_pager = argv[i+1];
             i += 1;
         } else if (strcmp(argv[i], "--file-display") == 0) {
             if (i+1 == argc)
                 err("option --file-display takes an argument\n");
-            opts.file_display = strdup(argv[i+1]);
+            opts.file_display = argv[i+1];
             i+= 1;
         } else if (strcmp(argv[i], "--execute-immediately") == 0) {
             opts.execute_immediately = 1;
@@ -103,14 +98,6 @@ int options_parse(int argc, char *argv[]) {
     }
 
     return i;
-}
-
-void options_free(void) {
-    if (opts.paradigm && strcmp(opts.paradigm, MULTI_CHOICE) == 0)
-        mc_options_free();
-    free(opts.file_display);
-    free(opts.file_pager);
-    free(opts.paradigm);
 }
 
 int execute_decision(int page) {
@@ -147,7 +134,6 @@ int main(int argc, char *argv[]) {
         printf("%s", state_of_gui.rip_message);
 
     state_free();
-    options_free();
     exit(state_of_gui.exit_code);
 }
 

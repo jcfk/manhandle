@@ -3,7 +3,7 @@
 void mc_options_parse(int argc, char *argv[], int *i) {
     int n;
     int j = *i;
-    opts.paradigm = strdup(argv[j]);
+    opts.paradigm = argv[j];
 
     for (int k = 0; k < 10; k++)
         opts.pd_opts.mc.choices[k].cmd = NULL;
@@ -22,7 +22,7 @@ void mc_options_parse(int argc, char *argv[], int *i) {
             if (strlen(argv[j]) < 3 || argv[j][1] != ':')
                 err("badly formed --choice \"%s\"\n", argv[j]);
 
-            opts.pd_opts.mc.choices[n].cmd = strdup(argv[j]+2);
+            opts.pd_opts.mc.choices[n].cmd = argv[j]+2;
         } else {
             err("unknown option \"%s\" for multi-choice", argv[j]);
         }
@@ -31,12 +31,6 @@ void mc_options_parse(int argc, char *argv[], int *i) {
     if (j == argc)
         err("no files provided\n");
     *i = j;
-}
-
-void mc_options_free(void) {
-    for (int i = 0; i < 10; i++) {
-        free(opts.pd_opts.mc.choices[i].cmd);
-    }
 }
 
 void mc_print_menu(void) {
