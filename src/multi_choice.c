@@ -3,6 +3,7 @@
 void mc_options_parse(int argc, char *argv[], int *i) {
     int n;
     int j = *i;
+    int choice_exists = 0;
     opts.paradigm = argv[j];
 
     for (int k = 0; k < 10; k++)
@@ -23,11 +24,16 @@ void mc_options_parse(int argc, char *argv[], int *i) {
                 err("badly formed --choice \"%s\"\n", argv[j]);
 
             opts.pd_opts.mc.choices[n].cmd = argv[j]+2;
+            choice_exists = 1;
         } else {
             err("unknown option \"%s\" for multi-choice", argv[j]);
         }
         j += 1;
     }
+
+    if (!choice_exists)
+        err("multi-choice requires at least one --choice\n");
+
     if (j == argc)
         err("no files provided\n");
     *i = j;
