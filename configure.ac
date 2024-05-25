@@ -14,7 +14,11 @@ AC_CHECK_LIB([ncurses], [mvwaddstr], [],
     [AC_MSG_ERROR(["cannot compile without ncurses"])])
 
 # Checks for header files.
-AC_CHECK_HEADERS([fcntl.h unistd.h])
+AC_CHECK_HEADER([fcntl.h], [],
+    [AC_MSG_ERROR(["cannot compile without fcntl.h"])])
+
+AC_CHECK_HEADER([unistd.h], [],
+    [AC_MSG_ERROR(["cannot compile without unistd.h"])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_PID_T
