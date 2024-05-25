@@ -25,7 +25,8 @@ This opens a multiple-choice interface looping over all `*.pdf`, where keys 1,
 2, 3, and 9 are bound to run the corresponding command in a subshell (with the
 current pdf exported as `$MH_FILE`).
 
-## Usage
+## Install
 
-Compile: `gcc *.c -o manhandle -lncurses`.
+    ./bootstrap && ./configure && make
+    sudo make install
 

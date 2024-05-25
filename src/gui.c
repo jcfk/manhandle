@@ -5,7 +5,7 @@ void state_initialize(char *files[], int file_count) {
     state_of_gui.page_count = file_count;
     messenger("");
 
-    state_of_decisions.files = malloc(file_count*sizeof(struct state_of_file));
+    state_of_decisions.files = malloc((size_t)file_count*sizeof(struct state_of_file));
     for (int i = 0; i < file_count; i++) {
         state_of_decisions.files[i].complete = 0;
         state_of_decisions.files[i].file = strdup(files[i]);
@@ -179,7 +179,7 @@ int ask(char *fmt, ...) {
 
     char key;
     for (;;) {
-        key = wgetch(state_of_curses.msg_win);
+        key = (char)wgetch(state_of_curses.msg_win);
         switch (key) {
             case 'y':
                 wclear(state_of_curses.msg_win);
@@ -295,7 +295,7 @@ void gui_loop(void) {
         wrefresh(state_of_curses.msg_win);
 
         /* get input */
-        key = wgetch(state_of_curses.msg_win);
+        key = (char)wgetch(state_of_curses.msg_win);
 
         /* change state */
         messenger("");

@@ -23,37 +23,7 @@ void err(char *fmt, ...) {
 }
 
 void print_help(void) {
-    printf("\n"
-        "  manhandle provides an interface to expedite decision-making over files.\n"
-        "\n"
-        "USAGE:\n"
-        "  manhandle [OPTION...] multi-choice [--choice CHOICE]... FILE...\n"
-        "\n"
-        "OPTIONS:\n"
-        "  --file-pager _cmd_     Run this in a subshell and open stdout in a pager\n"
-        "                         (default: stat \"$MH_FILE\").\n"
-        "  --file-display _cmd_   Run this in a subshell (default: none).\n"
-        "  --execute-immediately  Execute decisions upon entry, instead of waiting to\n"
-        "                         write out.\n"
-        "  --help                 Print this message.\n"
-        "\n"
-        "GUI:\n"
-        "  key  function\n"
-        "  q    Quit\n"
-        "  h    Prev page\n"
-        "  l    Next page\n"
-        "  w    Write out decisions\n"
-        "  v    Open --file-pager\n"
-        "  d    Open --file-display\n"
-        "  p    Progress pager\n"
-        "\n"
-        "PARADIGM multi-choice:\n"
-        "  Multiple choice binds keys 0-9 to commands through the --choice option.\n"
-        "\n"
-        "  OPTIONS:\n"
-        "    --choice _choice_  Format _choice_ like \"n:cmd\" (eg. 1:rm \"$MH_FILE\") to\n"
-        "                       bind digit n ([0-9]) to cmd.\n"
-    );
+    printf(USAGE);
     exit(0);
 }
 

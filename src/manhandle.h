@@ -8,6 +8,7 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include "config.h"
 #include "multi_choice.h"
 
 struct options {
