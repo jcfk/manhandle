@@ -94,6 +94,7 @@ int sa_execute_decision (int page) {
     return exit_code;
 }
 
+/* handle --execute-immediately */
 void sa_handle_key(char key) {
     if (key == 'e') {
         editor(&state_of_decisions.files[state_of_gui.page].decision.sa.str);
