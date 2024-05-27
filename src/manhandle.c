@@ -2,6 +2,7 @@
 
 struct options opts = { 
     .execute_immediately = 0,
+    .editor = NULL,
     .file_display = NULL, 
     .file_pager = NULL,
     .paradigm = NULL
@@ -37,7 +38,12 @@ int options_parse(int argc, char *argv[]) {
 
     int i = 1;
     while (i < argc && argv[i][0] == '-') {
-        if (strcmp(argv[i], "--file-pager") == 0) {
+        if (strcmp(argv[i], "--editor") == 0) {
+            if (i+1 == argc)
+                err("option --editor takes an argument\n");
+            opts.editor = argv[i+1];
+            i += 1;
+        } else if (strcmp(argv[i], "--file-pager") == 0) {
             if (i+1 == argc)
                 err("option --file-pager takes an argument\n");
             free(opts.file_pager);

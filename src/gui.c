@@ -180,10 +180,15 @@ void pager(char *fmt, ...) {
 
 /* general-purpose text editor */
 int editor(char **strp) {
-    char *editor = getenv("EDITOR");
-    if (!editor) {
-        messenger("Set EDITOR in the environment.");
-        return 1;
+    char* editor;
+    if (opts.editor) {
+        editor = opts.editor;
+    } else {
+        editor = getenv("EDITOR");
+        if (!editor) {
+            messenger("Set EDITOR in the environment.");
+            return 1;
+        }
     }
     /* support --editor and other defaults */
 

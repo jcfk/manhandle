@@ -15,6 +15,7 @@
 
 struct options {
     int execute_immediately;
+    char *editor;
     char *file_display;
     char *file_pager;
     char *paradigm;

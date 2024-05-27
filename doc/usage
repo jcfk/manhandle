@@ -3,6 +3,7 @@ USAGE:
   manhandle [OPTION...] short-answer --cmd CMD FILE...
 
 OPTIONS:
+  --editor EDITOR        This argument overrides envvar $EDITOR.
   --file-pager CMD       Run this in a subshell and open stdout in a pager
                          (default: stat "$MH_FILE").
   --file-display CMD     Run this in a subshell (default: none).
