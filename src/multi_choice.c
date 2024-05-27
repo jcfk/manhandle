@@ -7,7 +7,7 @@ void mc_options_parse(int argc, char *argv[], int *i) {
     opts.paradigm = argv[j];
 
     for (int k = 0; k < 10; k++)
-        opts.pd_opts.mc.choices[k].cmd = NULL;
+        opts.pd_opts.mc.choices[k] = NULL;
 
     j += 1;
     while (j < argc && argv[j][0] == '-') {
@@ -23,7 +23,7 @@ void mc_options_parse(int argc, char *argv[], int *i) {
             if (strlen(argv[j]) < 3 || argv[j][1] != ':')
                 err("badly formed --choice \"%s\"\n", argv[j]);
 
-            opts.pd_opts.mc.choices[n].cmd = argv[j]+2;
+            opts.pd_opts.mc.choices[n] = argv[j]+2;
             choice_exists = 1;
         } else {
             err("unknown option \"%s\" for multi-choice", argv[j]);
@@ -39,18 +39,17 @@ void mc_options_parse(int argc, char *argv[], int *i) {
     *i = j;
 }
 
-void mc_print_menu(void) {
-    int y;
-    int x;
-    getyx(state_of_curses.main_win, y, x);
+void mc_state_initialize(int page) {
+    state_of_decisions.files[page].decision.mc.n = 0;
+}
 
+void mc_print_menu(void) {
     int keys[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
-    int j = 2;
     int key;
     char c;
     for (int i = 0; i < 10; i++) {
         key = keys[i];
-        if (opts.pd_opts.mc.choices[key].cmd) {
+        if (opts.pd_opts.mc.choices[key]) {
             if (state_of_decisions.files[state_of_gui.page].complete && 
                 state_of_decisions.files[state_of_gui.page].decision.mc.n == key
             ) {
@@ -58,9 +57,8 @@ void mc_print_menu(void) {
             } else {
                 c = ' ';
             }
-            mvwprintw(state_of_curses.main_win, y+j, 0, " %c%d) '%s'", c, key,
-                opts.pd_opts.mc.choices[key].cmd);
-            j += 1;
+            mvwprintw(state_of_curses.main_win, GUI_MENU_Y+i, GUI_MENU_X,
+                      " %c%d) '%s'", c, key, opts.pd_opts.mc.choices[key]);
         }
     }
 }
@@ -79,7 +77,7 @@ char *mc_progress(void) {
             asprintf(&line, "%-5d         %s\n", i+1,
                      state_of_decisions.files[i].file);
         }
-        lines = realloc(lines, strlen(lines) + strlen(line)*sizeof(char));
+        lines = realloc(lines, strlen(lines) + strlen(line)*sizeof(char) + 1);
         strcat(lines, line);
         free(line);
     }
@@ -89,7 +87,7 @@ char *mc_progress(void) {
 int mc_execute_decision(int page) {
     int n = state_of_decisions.files[page].decision.mc.n;
     char *file = state_of_decisions.files[page].file;
-    char *cmd = opts.pd_opts.mc.choices[n].cmd;
+    char *cmd = opts.pd_opts.mc.choices[n];
 
     setenv("MH_FILE", file, 1);
     int exit_code = system(cmd);
@@ -110,7 +108,7 @@ void mc_handle_key(char key) {
     if (n < 0 || 9 < n)
         return;
 
-    if (!opts.pd_opts.mc.choices[n].cmd) {
+    if (!opts.pd_opts.mc.choices[n]) {
         messenger("%d) is not a choice.", n);
         return;
     }
@@ -141,6 +139,3 @@ void mc_handle_key(char key) {
         messenger("All pages complete. Check progress pager and write out.");
     }
 }
-
-
-

@@ -63,6 +63,8 @@ int options_parse(int argc, char *argv[]) {
 
     if (strcmp(argv[i], MULTI_CHOICE) == 0) {
         mc_options_parse(argc, argv, &i);
+    } else if (strcmp(argv[i], SHORT_ANSWER) == 0) {
+        sa_options_parse(argc, argv, &i);
     } else {
         err("unknown paradigm \"%s\"\n", argv[i]);
     }
@@ -71,8 +73,11 @@ int options_parse(int argc, char *argv[]) {
 }
 
 int execute_decision(int page) {
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
+    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
         return mc_execute_decision(page);
+    } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+        return sa_execute_decision(page);
+    }
     return 0;
 }
 

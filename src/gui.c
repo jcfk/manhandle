@@ -1,22 +1,32 @@
 #include "manhandle.h"
 
 void state_initialize(char *files[], int file_count) {
+    /* initialize state_of_gui */
     state_of_gui.page = 0;
     state_of_gui.page_count = file_count;
     messenger("");
 
+    /* initialize state_of_decisions */
     state_of_decisions.files = malloc((size_t)file_count*sizeof(struct state_of_file));
     for (int i = 0; i < file_count; i++) {
         state_of_decisions.files[i].complete = 0;
         state_of_decisions.files[i].file = strdup(files[i]);
+
+        if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+            mc_state_initialize(i);
+        } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+            sa_state_initialize(i);
+        }
     }
 }
 
 void state_free() {
+    /* state_of_gui */
     free(state_of_gui.message);
     if (state_of_gui.rip_message)
         free(state_of_gui.rip_message);
 
+    /* state_of_decisions */
     for (int i = 0; i < state_of_gui.page_count; i++) {
         free(state_of_decisions.files[i].file);
     }
@@ -52,19 +62,22 @@ void curses_free(void) {
 }
 
 void print_menubar(void) {
-    mvwprintw(state_of_curses.main_win, 0, 0, 
+    mvwprintw(state_of_curses.main_win, GUI_MENUBAR_Y, GUI_MENUBAR_X, 
         "q:Quit   h/left:Prev   l/right:Next   ?:Help");
 }
 
 void print_file_meta(void) {
-    mvwprintw(state_of_curses.main_win, 2, 0, "(%d/%d) '%s'", 
-        state_of_gui.page+1, state_of_gui.page_count, 
-        state_of_decisions.files[state_of_gui.page].file);
+    mvwprintw(state_of_curses.main_win, GUI_FILEMETA_Y, GUI_FILEMETA_X,
+              "(%d/%d) '%s'", state_of_gui.page+1, state_of_gui.page_count, 
+              state_of_decisions.files[state_of_gui.page].file);
 }
 
 void print_menu(void) {
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
+    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
         mc_print_menu();
+    } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+        sa_print_menu();
+    }
 }
 
 void display_file(void) {
@@ -104,6 +117,8 @@ void pager_file(void) {
     system(cmd);
     free(cmd);
 
+    /* unset MH_FILE */
+
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
     wrefresh(state_of_curses.msg_win);
@@ -126,9 +141,14 @@ void pager_help(void) {
 
 /* ugly */
 void pager_progress(void) {
-    char *progress = strdup("");
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
+    char *progress;
+    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
         progress = mc_progress();
+    } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+        progress = sa_progress();
+    } else {
+        progress = strdup("");
+    }
     pager(progress);
     free(progress);
 }
@@ -156,6 +176,52 @@ void pager(char *fmt, ...) {
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
     wrefresh(state_of_curses.msg_win);
+}
+
+/* general-purpose text editor */
+int editor(char **strp) {
+    char *editor = getenv("EDITOR");
+    if (!editor) {
+        messenger("Set EDITOR in the environment.");
+        return 1;
+    }
+    /* support --editor and other defaults */
+
+    def_prog_mode();
+    endwin();
+
+    char tempfile[] = "/tmp/manhandle.XXXXXX";
+    int tempfd = mkstemp(tempfile);
+    if (*strp)
+        dprintf(tempfd, "%s", *strp);
+    close(tempfd);
+
+    char *cmd;
+    asprintf(&cmd, "%s %s", editor, tempfile);
+    int code = system(cmd);
+    free(cmd);
+
+    if (code) {
+        messenger("Editor exits with code %d. No changes saved.", code);
+    } else {
+        char *new_str;
+        read_whole_file(tempfile, &new_str);
+        if (strlen(new_str) > 0) {
+            if (*strp)
+                free(*strp);
+            *strp = new_str;
+        } else {
+            *strp = NULL;
+        }
+    }
+
+    unlink(tempfile);
+
+    reset_prog_mode();
+    wrefresh(state_of_curses.main_win);
+    wrefresh(state_of_curses.msg_win);
+
+    return code;
 }
 
 /* general messenger */
@@ -236,6 +302,7 @@ void ask_exit(void) {
     state_of_gui.shall_exit = 1;
 }
 
+/* get escape */
 void handle_key(char key) {
     switch (key) {
         case 'q':
@@ -269,8 +336,11 @@ void handle_key(char key) {
             break;
         default: 
             /* becoz each paradigm has effectively its own gui */
-            if (strcmp(opts.paradigm, MULTI_CHOICE) == 0)
+            if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
                 mc_handle_key(key);
+            } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+                sa_handle_key(key);
+            }
             break;
     }
 }

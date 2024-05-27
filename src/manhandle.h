@@ -9,7 +9,9 @@
 #include <unistd.h>
 
 #include "config.h"
+#include "gui.h"
 #include "multi_choice.h"
+#include "short_answer.h"
 
 struct options {
     int execute_immediately;
@@ -17,7 +19,8 @@ struct options {
     char *file_pager;
     char *paradigm;
     union {
-        struct multi_choice_options mc;
+        struct mc_options mc;
+        struct sa_options sa;
     } pd_opts;
 };
 
@@ -26,6 +29,7 @@ struct state_of_file {
     char *file;
     union {
         struct mc_decision mc;
+        struct sa_decision sa;
     } decision;
 };
 
@@ -73,6 +77,7 @@ void pager_file(void);
 void pager_help(void);
 void pager_progress(void);
 void pager(char *fmt, ...);
+int editor(char **strp);
 void messenger(char *fmt, ...);
 int ask(char *fmt, ...);
 void nav_prev(void);
@@ -88,7 +93,16 @@ int execute_decision(int page);
 int all_files_complete(void);
 int main(int argc, char *argv[]);
 void mc_options_parse(int argc, char *argv[], int *i);
+void mc_state_initialize(int page);
 void mc_print_menu(void);
 char *mc_progress(void);
 int mc_execute_decision(int page);
 void mc_handle_key(char key);
+void sa_options_parse(int argc, char *argv[], int *i);
+void sa_state_initialize(int page);
+void sa_print_menu(void);
+char *sa_progress(void);
+int sa_execute_decision (int page);
+void sa_handle_key(char key);
+char *strip_last_newline(char *str);
+void read_whole_file(char *fpath, char **strp);

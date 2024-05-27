@@ -1,13 +1,11 @@
-
-  manhandle provides an interface to expedite decision-making over files.
-
 USAGE:
   manhandle [OPTION...] multi-choice [--choice CHOICE]... FILE...
+  manhandle [OPTION...] short-answer --cmd CMD FILE...
 
 OPTIONS:
-  --file-pager _cmd_     Run this in a subshell and open stdout in a pager
+  --file-pager CMD       Run this in a subshell and open stdout in a pager
                          (default: stat "$MH_FILE").
-  --file-display _cmd_   Run this in a subshell (default: none).
+  --file-display CMD     Run this in a subshell (default: none).
   --execute-immediately  Execute decisions upon entry, instead of waiting to
                          write out.
   --help                 Print this message.
@@ -27,8 +25,15 @@ PARADIGM multi-choice:
   Multiple choice binds keys 0-9 to commands through the --choice option.
 
   OPTIONS:
-    --choice _choice_  Format _choice_ like n:cmd (eg. '1:rm "$MH_FILE"') to
-                       bind digit n ([0-9]) to cmd.
+    --choice CHOICE  Format CHOICE like n:cmd (eg. '1:rm "$MH_FILE"') to
+                     bind digit n ([0-9]) to cmd.
+
+PARADIGM short-answer:
+  Short-answer exports a given string as MH_STR.
+
+  OPTIONS:
+    --cmd CMD  Execute CMD per file, where CMD references both $MH_FILE and
+               $MH_STR (eg. 'mv "$MH_FILE" "$MH_STR"').
 
 BUGS:
   github.com/jcfk/manhandle
