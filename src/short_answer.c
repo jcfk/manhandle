@@ -7,7 +7,7 @@ void sa_options_parse(int argc, char *argv[], int *i) {
     opts.pd_opts.sa.cmd = NULL;
     j += 1;
     while (j < argc && argv[j][0] == '-') {
-        if (strcmp(argv[j], "--cmd") == 0) {
+        if (STREQ(argv[j], "--cmd")) {
             j += 1;
             if (j == argc)
                 err("option --cmd takes an argument\n");

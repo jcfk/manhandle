@@ -38,24 +38,24 @@ int options_parse(int argc, char *argv[]) {
 
     int i = 1;
     while (i < argc && argv[i][0] == '-') {
-        if (strcmp(argv[i], "--editor") == 0) {
+        if (STREQ(argv[i], "--editor")) {
             if (i+1 == argc)
                 err("option --editor takes an argument\n");
             opts.editor = argv[i+1];
             i += 1;
-        } else if (strcmp(argv[i], "--file-pager") == 0) {
+        } else if (STREQ(argv[i], "--file-pager")) {
             if (i+1 == argc)
                 err("option --file-pager takes an argument\n");
             opts.file_pager = argv[i+1];
             i += 1;
-        } else if (strcmp(argv[i], "--file-display") == 0) {
+        } else if (STREQ(argv[i], "--file-display")) {
             if (i+1 == argc)
                 err("option --file-display takes an argument\n");
             opts.file_display = argv[i+1];
             i+= 1;
-        } else if (strcmp(argv[i], "--execute-immediately") == 0) {
+        } else if (STREQ(argv[i], "--execute-immediately")) {
             opts.execute_immediately = 1;
-        } else if (strcmp(argv[i], "--help") == 0) {
+        } else if (STREQ(argv[i], "--help")) {
             print_help();
         } else {
             err("unknown option \"%s\"\n", argv[i]);
@@ -66,9 +66,9 @@ int options_parse(int argc, char *argv[]) {
     if (i == argc)
         err("paradigm required\n");
 
-    if (strcmp(argv[i], MULTI_CHOICE) == 0) {
+    if (STREQ(argv[i], MULTI_CHOICE)) {
         mc_options_parse(argc, argv, &i);
-    } else if (strcmp(argv[i], SHORT_ANSWER) == 0) {
+    } else if (STREQ(argv[i], SHORT_ANSWER)) {
         sa_options_parse(argc, argv, &i);
     } else {
         err("unknown paradigm \"%s\"\n", argv[i]);
@@ -78,9 +78,9 @@ int options_parse(int argc, char *argv[]) {
 }
 
 int execute_decision(int page) {
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+    if (STREQ(opts.paradigm, MULTI_CHOICE)) {
         return mc_execute_decision(page);
-    } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+    } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         return sa_execute_decision(page);
     }
     return 0;

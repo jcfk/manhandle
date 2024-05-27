@@ -11,7 +11,7 @@ void mc_options_parse(int argc, char *argv[], int *i) {
 
     j += 1;
     while (j < argc && argv[j][0] == '-') {
-        if (strcmp(argv[j], "--choice") == 0) {
+        if (STREQ(argv[j], "--choice")) {
             j += 1;
             if (j == argc)
                 err("option --choice takes an argument\n");

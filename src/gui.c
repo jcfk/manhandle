@@ -12,9 +12,9 @@ void state_initialize(char *files[], int file_count) {
         state_of_decisions.files[i].complete = 0;
         state_of_decisions.files[i].file = strdup(files[i]);
 
-        if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+        if (STREQ(opts.paradigm, MULTI_CHOICE)) {
             mc_state_initialize(i);
-        } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+        } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
             sa_state_initialize(i);
         }
     }
@@ -73,9 +73,9 @@ void print_file_meta(void) {
 }
 
 void print_menu(void) {
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+    if (STREQ(opts.paradigm, MULTI_CHOICE)) {
         mc_print_menu();
-    } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+    } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         sa_print_menu();
     }
 }
@@ -142,9 +142,9 @@ void pager_help(void) {
 /* ugly */
 void pager_progress(void) {
     char *progress;
-    if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+    if (STREQ(opts.paradigm, MULTI_CHOICE)) {
         progress = mc_progress();
-    } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+    } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         progress = sa_progress();
     } else {
         progress = strdup("");
@@ -341,9 +341,9 @@ void handle_key(char key) {
             break;
         default: 
             /* becoz each paradigm has effectively its own gui */
-            if (strcmp(opts.paradigm, MULTI_CHOICE) == 0) {
+            if (STREQ(opts.paradigm, MULTI_CHOICE)) {
                 mc_handle_key(key);
-            } else if (strcmp(opts.paradigm, SHORT_ANSWER) == 0) {
+            } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
                 sa_handle_key(key);
             }
             break;

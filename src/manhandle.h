@@ -13,6 +13,8 @@
 #include "multi_choice.h"
 #include "short_answer.h"
 
+#define STREQ(str1, str2) strcmp(str1, str2) == 0
+
 struct options {
     int execute_immediately;
     char *editor;
