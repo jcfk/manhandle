@@ -61,7 +61,7 @@ char *sa_progress(void) {
         } else {
             asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: not set\n\n", i, file);
         }
-        lines = realloc(lines, strlen(lines) + strlen(line)*sizeof(char) + 1);
+        lines = realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
         strcat(lines, line);
         free(line);
     }
@@ -70,23 +70,26 @@ char *sa_progress(void) {
 
 int sa_execute_decision (int page) {
     char *file = state_of_decisions.files[page].file;
-    char *str = state_of_decisions.files[page].decision.sa.str;
+    char *str = strdup(state_of_decisions.files[page].decision.sa.str);
     char *cmd = opts.pd_opts.sa.cmd;
 
     setenv("MH_FILE", file, 1);
-    setenv("MH_STR", str, 1);
+    setenv("MH_STR", strip_last_newline(str), 1);
     int exit_code = system(cmd);
 
     if (exit_code) {
-        state_of_gui.exit_code = 1;
         asprintf(&state_of_gui.rip_message, 
             "Failure during execution of page %d/%d. Subshell:\n"
             "  $ MH_FILE='%s'\n"
             "  $ MH_STR='%s'\n"
             "  $ %s\n"
             "  exit_code: %d\n",
-            state_of_gui.page+1, state_of_gui.page_count, file, str, cmd, exit_code);
+            page+1, state_of_gui.page_count, file, str, cmd, exit_code);
     }
+
+    free(str);
+    unsetenv("MH_FILE");
+    unsetenv("MH_STR");
 
     return exit_code;
 }

@@ -95,15 +95,20 @@ int mc_execute_decision(int page) {
     int exit_code = system(cmd);
     
     if (exit_code) {
-        state_of_gui.exit_code = 1;
         asprintf(&state_of_gui.rip_message, 
-            "Failure during execution of page %d/%d. Subshell:\n  $ MH_FILE='%s'\n  $ %s\n  exit_code: %d\n",
-            state_of_gui.page+1, state_of_gui.page_count, file, cmd, exit_code);
+            "Failure during execution of page %d/%d. Subshell:\n"
+            "  $ MH_FILE='%s'\n"
+            "  $ %s\n"
+            "  exit_code: %d\n",
+            page+1, state_of_gui.page_count, file, cmd, exit_code);
     }
+
+    unsetenv("MH_FILE");
 
     return exit_code;
 }
 
+/* allow deselect all */
 void mc_handle_key(char key) {
     int n = key - '0';
 

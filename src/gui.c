@@ -190,7 +190,6 @@ int editor(char **strp) {
             return 1;
         }
     }
-    /* support --editor and other defaults */
 
     def_prog_mode();
     endwin();
@@ -293,11 +292,14 @@ void ask_write_out(void) {
 
     for (int i = 0; i < state_of_gui.page_count; i+=1) {
         if (state_of_decisions.files[i].complete) {
-            if (execute_decision(i))
+            if (execute_decision(i)) {
+                state_of_gui.exit_code = 1;
+                state_of_gui.shall_exit = 1;
                 return;
+            }
         }
     }
-    asprintf(&state_of_gui.rip_message, "All decisions successfully executed.\n");
+    state_of_gui.rip_message = strdup("Successfully executed decisions.\n");
     state_of_gui.shall_exit = 1;
 }
 
