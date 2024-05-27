@@ -47,6 +47,7 @@ void mc_print_menu(void) {
     int keys[] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 0};
     int key;
     char c;
+    int j = 0;
     for (int i = 0; i < 10; i++) {
         key = keys[i];
         if (opts.pd_opts.mc.choices[key]) {
@@ -57,8 +58,9 @@ void mc_print_menu(void) {
             } else {
                 c = ' ';
             }
-            mvwprintw(state_of_curses.main_win, GUI_MENU_Y+i, GUI_MENU_X,
+            mvwprintw(state_of_curses.main_win, GUI_MENU_Y+j, GUI_MENU_X,
                       " %c%d) '%s'", c, key, opts.pd_opts.mc.choices[key]);
+            j += 1;
         }
     }
 }
