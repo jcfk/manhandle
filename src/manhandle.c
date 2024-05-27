@@ -46,7 +46,6 @@ int options_parse(int argc, char *argv[]) {
         } else if (strcmp(argv[i], "--file-pager") == 0) {
             if (i+1 == argc)
                 err("option --file-pager takes an argument\n");
-            free(opts.file_pager);
             opts.file_pager = argv[i+1];
             i += 1;
         } else if (strcmp(argv[i], "--file-display") == 0) {
