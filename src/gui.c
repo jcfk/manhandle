@@ -190,6 +190,7 @@ int editor(char **strp) {
             return 1;
         }
     }
+    /* choose a fallback editor, like nano */
 
     def_prog_mode();
     endwin();
