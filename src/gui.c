@@ -10,7 +10,7 @@ void state_initialize(char *files[], int file_count) {
     state_of_decisions.files = malloc((size_t)file_count*sizeof(struct state_of_file));
     for (int i = 0; i < file_count; i++) {
         state_of_decisions.files[i].complete = 0;
-        state_of_decisions.files[i].file = strdup(files[i]);
+        state_of_decisions.files[i].file = files[i];
 
         if (STREQ(opts.paradigm, MULTI_CHOICE)) {
             mc_state_initialize(i);
@@ -27,9 +27,6 @@ void state_free() {
         free(state_of_gui.rip_message);
 
     /* state_of_decisions */
-    for (int i = 0; i < state_of_gui.page_count; i++) {
-        free(state_of_decisions.files[i].file);
-    }
     free(state_of_decisions.files);
 }
 
