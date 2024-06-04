@@ -9,6 +9,7 @@ do things manually.
 such files. It currently supports decision paradigms such as:
 
 * multiple-choice
+* short-answer
 
 ## Example
 
