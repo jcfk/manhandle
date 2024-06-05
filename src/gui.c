@@ -94,13 +94,8 @@ void display_file(void) {
         if (fd < 0)
             syscall_err("open");
 
-        int status = dup2(fd, STDIN_FILENO);
-        if (status < 0)
-            syscall_err("dup2");
-
-        status = close(fd);
-        if (status < 0)
-            syscall_err("close");
+        SYSCALL(dup2(fd, STDIN_FILENO));
+        SYSCALL(close(fd));
 
         safe_setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
 
@@ -108,9 +103,7 @@ void display_file(void) {
         syscall_err("execl");
     }
 
-    int status = waitpid(pid, NULL, 0);
-    if (status < 0)
-        syscall_err("waitpid");
+    SYSCALL(waitpid(pid, NULL, 0));
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
@@ -176,17 +169,13 @@ void pager(char *fmt, ...) {
         syscall_err("mkstemp");
     } else {
         vdprintf(tempfd, fmt, ap); /* check err? */
-        int status = close(tempfd);
-        if (status < 0)
-            syscall_err("close");
+        SYSCALL(close(tempfd));
 
         char *cmd;
         safe_asprintf(&cmd, "less -cS '%s'", tempfile);
         safe_system(cmd);
         free(cmd);
-        status = unlink(tempfile);
-        if (status < 0)
-            syscall_err("unlink");
+        SYSCALL(unlink(tempfile));
     }
 
     reset_prog_mode();
@@ -218,13 +207,11 @@ void editor(char **strp) {
     } else {
         if (*strp)
             dprintf(tempfd, "%s", *strp);
-        int status = close(tempfd);
-        if (status < 0)
-            syscall_err("close");
+        SYSCALL(close(tempfd));
 
         char *cmd;
         safe_asprintf(&cmd, "%s %s", editor, tempfile);
-        status = safe_system(cmd);
+        int status = safe_system(cmd);
         free(cmd);
 
         if (status) {
@@ -241,9 +228,7 @@ void editor(char **strp) {
             }
         }
 
-        status = unlink(tempfile);
-        if (status < 0)
-            syscall_err("unlink");
+        SYSCALL(unlink(tempfile));
     }
 
     reset_prog_mode();
