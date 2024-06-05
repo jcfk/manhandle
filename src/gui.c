@@ -126,8 +126,7 @@ void pager_file(void) {
     safe_asprintf(&cmd, "less -fc <(%s)", opts.file_pager);
     safe_system(cmd);
     free(cmd);
-
-    /* todo unset MH_FILE */
+    safe_unsetenv("MH_FILE");
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
