@@ -322,7 +322,7 @@ void ask_write_out(void) {
             }
         }
     }
-    /* todo remove strdup */
+
     state_of_gui.rip_message = strdup("Successfully executed decisions.\n");
     state_of_gui.shall_exit = 1;
 }
