@@ -1,4 +1,5 @@
 #include <curses.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <signal.h>
 #include <stdarg.h>
@@ -80,7 +81,7 @@ void pager_file(void);
 void pager_help(void);
 void pager_progress(void);
 void pager(char *fmt, ...);
-int editor(char **strp);
+void editor(char **strp);
 void messenger(char *fmt, ...);
 int ask(char *fmt, ...);
 void nav_prev(void);
@@ -89,7 +90,6 @@ void ask_write_out(void);
 void ask_exit(void);
 void handle_key(char key);
 void gui_loop(void);
-void err(char *fmt, ...);
 void print_help(void);
 int options_parse(int argc, char *argv[]);
 int execute_decision(int page);
@@ -107,5 +107,15 @@ void sa_print_menu(void);
 char *sa_progress(void);
 int sa_execute_decision (int page);
 void sa_handle_key(char key);
+void err(char *fmt, ...);
+void syscall_err(char *syscall);
+void *safe_malloc(size_t size);
+void *safe_realloc(void *ptr, size_t size);
+void safe_asprintf(char **strp, char *fmt, ...);
+void safe_vasprintf(char **strp, char *fmt, va_list ap);
+int safe_system(char *command);
+pid_t safe_fork(void);
+void safe_setenv(char *name, char *value, int overwrite);
+void safe_unsetenv(char *name);
 char *strip_last_newline(char *str);
 void read_whole_file(char *fpath, char **strp);

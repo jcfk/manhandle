@@ -69,17 +69,17 @@ void mc_print_menu(void) {
 char *mc_progress(void) {
     char *lines;
     char *line;
-    asprintf(&lines, "Page  Choice  File\n");
+    safe_asprintf(&lines, "Page  Choice  File\n");
     for (int i = 0; i < state_of_gui.page_count; i++) {
         if (state_of_decisions.files[i].complete) {
-            asprintf(&line, "%-5d %-7d %s\n", i+1,
+            safe_asprintf(&line, "%-5d %-7d %s\n", i+1,
                 state_of_decisions.files[i].decision.mc.n,
                 state_of_decisions.files[i].file);
         } else {
-            asprintf(&line, "%-5d         %s\n", i+1,
+            safe_asprintf(&line, "%-5d         %s\n", i+1,
                      state_of_decisions.files[i].file);
         }
-        lines = realloc(lines, strlen(lines) + strlen(line)*sizeof(char) + 1);
+        lines = safe_realloc(lines, strlen(lines) + strlen(line)*sizeof(char) + 1);
         strcat(lines, line);
         free(line);
     }
@@ -91,21 +91,18 @@ int mc_execute_decision(int page) {
     char *file = state_of_decisions.files[page].file;
     char *cmd = opts.pd_opts.mc.choices[n];
 
-    setenv("MH_FILE", file, 1);
-    int exit_code = system(cmd);
-    
-    if (exit_code) {
-        asprintf(&state_of_gui.rip_message, 
-            "Failure during execution of page %d/%d. Subshell:\n"
-            "  $ MH_FILE='%s'\n"
-            "  $ %s\n"
-            "  exit_code: %d\n",
-            page+1, state_of_gui.page_count, file, cmd, exit_code);
-    }
+    safe_setenv("MH_FILE", file, 1);
+    int status = safe_system(cmd);
+    if (status)
+        safe_asprintf(&state_of_gui.rip_message, 
+                      "Failure during execution of page %d/%d. Subshell:\n"
+                      "  $ MH_FILE='%s'\n"
+                      "  $ %s\n"
+                      "  exit code: %d\n",
+                      page+1, state_of_gui.page_count, file, cmd, status);
+    safe_unsetenv("MH_FILE");
 
-    unsetenv("MH_FILE");
-
-    return exit_code;
+    return status;
 }
 
 /* allow deselect all */

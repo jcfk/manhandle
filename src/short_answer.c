@@ -42,7 +42,7 @@ void sa_print_menu(void) {
         waddstr(state_of_curses.main_win, "\"");
         free(str_short);
     }
- 
+
     mvwaddstr(state_of_curses.main_win, GUI_MENU_Y+2, GUI_MENU_X,
               "(use 'e' for editor)");
 }
@@ -56,10 +56,12 @@ char *sa_progress(void) {
         file = state_of_decisions.files[i].file;
         if (state_of_decisions.files[i].complete) {
             char *str_short = strip_last_newline(state_of_decisions.files[i].decision.sa.str);
-            asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: \"%s\"\n\n", i, file, str_short);
+            safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: \"%s\"\n\n",
+                          i, file, str_short);
             free(str_short);
         } else {
-            asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: not set\n\n", i, file);
+            safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: not set\n\n",
+                          i, file);
         }
         lines = realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
         strcat(lines, line);
@@ -73,25 +75,22 @@ int sa_execute_decision (int page) {
     char *str = strdup(state_of_decisions.files[page].decision.sa.str);
     char *cmd = opts.pd_opts.sa.cmd;
 
-    setenv("MH_FILE", file, 1);
-    setenv("MH_STR", strip_last_newline(str), 1);
-    int exit_code = system(cmd);
-
-    if (exit_code) {
-        asprintf(&state_of_gui.rip_message, 
-            "Failure during execution of page %d/%d. Subshell:\n"
-            "  $ MH_FILE='%s'\n"
-            "  $ MH_STR='%s'\n"
-            "  $ %s\n"
-            "  exit_code: %d\n",
-            page+1, state_of_gui.page_count, file, str, cmd, exit_code);
-    }
+    safe_setenv("MH_FILE", file, 1);
+    safe_setenv("MH_STR", strip_last_newline(str), 1);
+    int status = safe_system(cmd);
+    if (status)
+        safe_asprintf(&state_of_gui.rip_message, 
+                      "Failure during execution of page %d/%d. Subshell:\n"
+                      "  $ MH_FILE='%s'\n"
+                      "  $ MH_STR='%s'\n"
+                      "  $ %s\n"
+                      "  exit code: %d\n",
+                      page+1, state_of_gui.page_count, file, str, cmd, status);
+    safe_unsetenv("MH_FILE");
+    safe_unsetenv("MH_STR");
 
     free(str);
-    unsetenv("MH_FILE");
-    unsetenv("MH_STR");
-
-    return exit_code;
+    return status;
 }
 
 /* handle --execute-immediately */

@@ -14,6 +14,9 @@ AC_CHECK_LIB([ncurses], [mvwaddstr], [],
     [AC_MSG_ERROR(["cannot compile without ncurses"])])
 
 # Checks for header files.
+AC_CHECK_HEADER([errno.h], [],
+    [AC_MSG_ERROR(["cannot compile without errno.h"])])
+
 AC_CHECK_HEADER([fcntl.h], [],
     [AC_MSG_ERROR(["cannot compile without fcntl.h"])])
 

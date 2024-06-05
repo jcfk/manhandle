@@ -16,13 +16,6 @@ struct state_of_gui state_of_gui = {
 };
 struct state_of_curses state_of_curses;
 
-void err(char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    exit(1);
-}
-
 void print_help(void) {
     printf(USAGE);
     exit(0);
@@ -114,4 +107,3 @@ int main(int argc, char *argv[]) {
     state_free();
     exit(state_of_gui.exit_code);
 }
-

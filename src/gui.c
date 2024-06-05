@@ -7,7 +7,7 @@ void state_initialize(char *files[], int file_count) {
     messenger("");
 
     /* initialize state_of_decisions */
-    state_of_decisions.files = malloc((size_t)file_count*sizeof(struct state_of_file));
+    state_of_decisions.files = safe_malloc((size_t)file_count*sizeof(struct state_of_file));
     for (int i = 0; i < file_count; i++) {
         state_of_decisions.files[i].complete = 0;
         state_of_decisions.files[i].file = files[i];
@@ -88,16 +88,29 @@ void display_file(void) {
     def_prog_mode();
     endwin();
 
-    pid_t pid = fork();
-    if (!pid) {
+    pid_t pid = safe_fork();
+    if (pid == 0) {
         int fd = open("/dev/null", O_RDONLY);
-        dup2(fd, STDIN_FILENO);
-        close(fd);
-        setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
+        if (fd < 0)
+            syscall_err("open");
+
+        int status = dup2(fd, STDIN_FILENO);
+        if (status < 0)
+            syscall_err("dup2");
+
+        status = close(fd);
+        if (status < 0)
+            syscall_err("close");
+
+        safe_setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
+
         execl("/bin/bash", "bash", "-c", opts.file_display, NULL);
+        syscall_err("execl");
     }
 
-    waitpid(pid, NULL, 0);
+    int status = waitpid(pid, NULL, 0);
+    if (status < 0)
+        syscall_err("waitpid");
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
@@ -108,13 +121,13 @@ void pager_file(void) {
     def_prog_mode();
     endwin();
 
-    setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
+    safe_setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
     char *cmd;
-    asprintf(&cmd, "less -fc <(%s)", opts.file_pager);
-    system(cmd);
+    safe_asprintf(&cmd, "less -fc <(%s)", opts.file_pager);
+    safe_system(cmd);
     free(cmd);
 
-    /* unset MH_FILE */
+    /* todo unset MH_FILE */
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
@@ -160,15 +173,22 @@ void pager(char *fmt, ...) {
 
     char tempfile[] = "/tmp/manhandle.XXXXXX";
     int tempfd = mkstemp(tempfile);
-    vdprintf(tempfd, fmt, ap);
-    close(tempfd);
+    if (tempfd < 0) {
+        syscall_err("mkstemp");
+    } else {
+        vdprintf(tempfd, fmt, ap); /* check err? */
+        int status = close(tempfd);
+        if (status < 0)
+            syscall_err("close");
 
-    char *cmd;
-    asprintf(&cmd, "less -cS '%s'", tempfile);
-    system(cmd);
-    free(cmd);
-
-    unlink(tempfile);
+        char *cmd;
+        safe_asprintf(&cmd, "less -cS '%s'", tempfile);
+        safe_system(cmd);
+        free(cmd);
+        status = unlink(tempfile);
+        if (status < 0)
+            syscall_err("unlink");
+    }
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
@@ -176,7 +196,8 @@ void pager(char *fmt, ...) {
 }
 
 /* general-purpose text editor */
-int editor(char **strp) {
+void editor(char **strp) {
+    /* choose a fallback editor, like nano */
     char* editor;
     if (opts.editor) {
         editor = opts.editor;
@@ -184,61 +205,66 @@ int editor(char **strp) {
         editor = getenv("EDITOR");
         if (!editor) {
             messenger("Set EDITOR in the environment.");
-            return 1;
+            return;
         }
     }
-    /* choose a fallback editor, like nano */
 
     def_prog_mode();
     endwin();
 
     char tempfile[] = "/tmp/manhandle.XXXXXX";
     int tempfd = mkstemp(tempfile);
-    if (*strp)
-        dprintf(tempfd, "%s", *strp);
-    close(tempfd);
-
-    char *cmd;
-    asprintf(&cmd, "%s %s", editor, tempfile);
-    int code = system(cmd);
-    free(cmd);
-
-    if (code) {
-        messenger("Editor exits with code %d. No changes saved.", code);
+    if (tempfd < 0) {
+        syscall_err("mkstemp");
     } else {
-        char *new_str;
-        read_whole_file(tempfile, &new_str);
-        if (strlen(new_str) > 0) {
-            if (*strp)
-                free(*strp);
-            *strp = new_str;
-        } else {
-            *strp = NULL;
-        }
-    }
+        if (*strp)
+            dprintf(tempfd, "%s", *strp);
+        int status = close(tempfd);
+        if (status < 0)
+            syscall_err("close");
 
-    unlink(tempfile);
+        char *cmd;
+        safe_asprintf(&cmd, "%s %s", editor, tempfile);
+        status = safe_system(cmd);
+        free(cmd);
+
+        if (status) {
+            messenger("Editor exited with code %d. No changes saved.", status);
+        } else {
+            char *new_str;
+            read_whole_file(tempfile, &new_str); /* todo return existence bool */
+            if (strlen(new_str) > 0) {
+                if (*strp)
+                    free(*strp);
+                *strp = new_str;
+            } else {
+                *strp = NULL;
+            }
+        }
+
+        status = unlink(tempfile);
+        if (status < 0)
+            syscall_err("unlink");
+    }
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
     wrefresh(state_of_curses.msg_win);
-
-    return code;
 }
 
-/* general messenger */
+/* general purpose messenger */
 void messenger(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     free(state_of_gui.message);
-    vasprintf(&state_of_gui.message, fmt, ap);
+    safe_vasprintf(&state_of_gui.message, fmt, ap);
 }
 
 int ask(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     char* message;
-    vasprintf(&message, fmt, ap);
+    safe_vasprintf(&message, fmt, ap);
 
     wclear(state_of_curses.msg_win);
     mvwprintw(state_of_curses.msg_win, 0, 0, "%s", message);
@@ -297,6 +323,7 @@ void ask_write_out(void) {
             }
         }
     }
+    /* todo remove strdup */
     state_of_gui.rip_message = strdup("Successfully executed decisions.\n");
     state_of_gui.shall_exit = 1;
 }
@@ -381,4 +408,3 @@ void gui_loop(void) {
             break;
     }
 }
-
