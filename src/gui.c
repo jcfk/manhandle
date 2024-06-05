@@ -231,7 +231,7 @@ void editor(char **strp) {
             messenger("Editor exited with code %d. No changes saved.", status);
         } else {
             char *new_str;
-            read_whole_file(tempfile, &new_str); /* todo return existence bool */
+            read_whole_file(tempfile, &new_str);
             if (strlen(new_str) > 0) {
                 if (*strp)
                     free(*strp);

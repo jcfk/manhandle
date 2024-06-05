@@ -97,5 +97,4 @@ void read_whole_file(char *fpath, char **strp) {
     status = fclose(fp);
     if (status < 0)
         syscall_err("fclose");
-    return;
 }
