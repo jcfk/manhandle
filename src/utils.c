@@ -8,7 +8,7 @@ void err(char *fmt, ...) {
 }
 
 void syscall_err(char *syscall) {
-    err("%s() failed with errno %d: %s.", syscall, errno, strerror(errno));
+    err("%s() failed with errno %d: %s.\n", syscall, errno, strerror(errno));
 }
 
 void *safe_malloc(size_t size) {
