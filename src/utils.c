@@ -88,11 +88,6 @@ void read_whole_file(char *fpath, char **strp) {
     if (status < 0)
         syscall_err("fseek");
 
-    /* todo remove */
-    /* remove final newline, if present */
-    /* if (length > 0)
-       length -= 1; */
-
     *strp = safe_malloc(sizeof(char)*length + 1);
     size_t transfered = fread(*strp, sizeof(char), length, fp);
     if (transfered != length)
