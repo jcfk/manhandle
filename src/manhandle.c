@@ -28,6 +28,11 @@ void print_help(void) {
     exit(0);
 }
 
+void print_version(void) {
+    printf("%s\n", PACKAGE_STRING);
+    exit(0);
+}
+
 int options_parse(int argc, char *argv[]) {
     if (argc < 2)
         err("paradigm required\n");
@@ -57,6 +62,8 @@ int options_parse(int argc, char *argv[]) {
             opts.execute_immediately = 1;
         } else if (STREQ(argv[i], "--help")) {
             print_help();
+        } else if (STREQ(argv[i], "--version")) {
+            print_version();
         } else if (STREQ(argv[i], "--")) {
             i += 1;
             dd = 1;
