@@ -25,6 +25,9 @@ void mc_options_parse(int argc, char *argv[], int *i) {
 
             opts.pd_opts.mc.choices[n] = argv[j]+2;
             choice_exists = 1;
+        } else if (STREQ(argv[j], "--")) {
+            j += 1;
+            break;
         } else {
             err("unknown option \"%s\" for multi-choice", argv[j]);
         }

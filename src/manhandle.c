@@ -29,27 +29,32 @@ int options_parse(int argc, char *argv[]) {
     /* defaults */
     opts.file_pager = "stat \"$MH_FILE\"";
 
+    int dd = 0;
     int i = 1;
     while (i < argc && argv[i][0] == '-') {
         if (STREQ(argv[i], "--editor")) {
-            if (i+1 == argc)
+            i += 1;
+            if (i == argc)
                 err("option --editor takes an argument\n");
-            opts.editor = argv[i+1];
-            i += 1;
+            opts.editor = argv[i];
         } else if (STREQ(argv[i], "--file-pager")) {
-            if (i+1 == argc)
-                err("option --file-pager takes an argument\n");
-            opts.file_pager = argv[i+1];
             i += 1;
+            if (i == argc)
+                err("option --file-pager takes an argument\n");
+            opts.file_pager = argv[i];
         } else if (STREQ(argv[i], "--file-display")) {
-            if (i+1 == argc)
+            i += 1;
+            if (i == argc)
                 err("option --file-display takes an argument\n");
-            opts.file_display = argv[i+1];
-            i+= 1;
+            opts.file_display = argv[i];
         } else if (STREQ(argv[i], "--execute-immediately")) {
             opts.execute_immediately = 1;
         } else if (STREQ(argv[i], "--help")) {
             print_help();
+        } else if (STREQ(argv[i], "--")) {
+            i += 1;
+            dd = 1;
+            break;
         } else {
             err("unknown option \"%s\"\n", argv[i]);
         }
@@ -59,12 +64,14 @@ int options_parse(int argc, char *argv[]) {
     if (i == argc)
         err("paradigm required\n");
 
-    if (STREQ(argv[i], MULTI_CHOICE)) {
-        mc_options_parse(argc, argv, &i);
-    } else if (STREQ(argv[i], SHORT_ANSWER)) {
-        sa_options_parse(argc, argv, &i);
-    } else {
-        err("unknown paradigm \"%s\"\n", argv[i]);
+    if (!dd) {
+        if (STREQ(argv[i], MULTI_CHOICE)) {
+            mc_options_parse(argc, argv, &i);
+        } else if (STREQ(argv[i], SHORT_ANSWER)) {
+            sa_options_parse(argc, argv, &i);
+        } else {
+            err("unknown paradigm \"%s\"\n", argv[i]);
+        }
     }
 
     return i;

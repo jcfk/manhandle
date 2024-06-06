@@ -5,6 +5,7 @@ void sa_options_parse(int argc, char *argv[], int *i) {
     opts.paradigm = argv[j];
 
     opts.pd_opts.sa.cmd = NULL;
+
     j += 1;
     while (j < argc && argv[j][0] == '-') {
         if (STREQ(argv[j], "--cmd")) {
@@ -12,6 +13,9 @@ void sa_options_parse(int argc, char *argv[], int *i) {
             if (j == argc)
                 err("option --cmd takes an argument\n");
             opts.pd_opts.sa.cmd = argv[j];
+        } else if (STREQ(argv[j], "--")) {
+            j += 1;
+            break;
         } else {
             err("unknown option \"%s\" for short-answer\n", argv[j]);
         }
