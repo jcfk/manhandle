@@ -119,3 +119,4 @@ void safe_setenv(char *name, char *value, int overwrite);
 void safe_unsetenv(char *name);
 char *strip_last_newline(char *str);
 void read_whole_file(char *fpath, char **strp);
+char *make_tmp_name(void);

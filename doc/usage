@@ -36,5 +36,8 @@ PARADIGM short-answer:
     --cmd CMD  Execute CMD per file, where CMD references both $MH_FILE and
                $MH_STR (eg. 'mv "$MH_FILE" "$MH_STR"').
 
+NOTES:
+  Temp files are created respecting envvar TMPDIR (eg. "/home/jacob/mytmp").
+
 BUGS:
   github.com/jcfk/manhandle

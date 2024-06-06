@@ -85,3 +85,15 @@ void read_whole_file(char *fpath, char **strp) {
 
     if (fclose(fp) < 0) syscall_err("fclose");
 }
+
+char *make_tmp_name(void) {
+    char *tmpdir = getenv("TMPDIR");
+    if (!tmpdir)
+        tmpdir = "/tmp";
+    /* how much format checking to do here? */
+    char *tempfile = malloc(sizeof(char)*
+                            (strlen(tmpdir)+strlen("/manhandle.XXXXXX")+1));
+    strcpy(tempfile, tmpdir);
+    strcat(tempfile, "/manhandle.XXXXXX");
+    return tempfile;
+}

@@ -163,7 +163,7 @@ void pager(char *fmt, ...) {
     def_prog_mode();
     endwin();
 
-    char tempfile[] = "/tmp/manhandle.XXXXXX";
+    char *tempfile = make_tmp_name();
     int tempfd = mkstemp(tempfile);
     if (tempfd < 0) {
         syscall_err("mkstemp");
@@ -177,6 +177,8 @@ void pager(char *fmt, ...) {
         free(cmd);
         if (unlink(tempfile) < 0) syscall_err("unlink");
     }
+
+    free(tempfile);
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
@@ -200,7 +202,7 @@ void editor(char **strp) {
     def_prog_mode();
     endwin();
 
-    char tempfile[] = "/tmp/manhandle.XXXXXX";
+    char *tempfile = make_tmp_name();
     int tempfd = mkstemp(tempfile);
     if (tempfd < 0) {
         syscall_err("mkstemp");
@@ -230,6 +232,8 @@ void editor(char **strp) {
 
         if (unlink(tempfile) < 0) syscall_err("unlink");
     }
+
+    free(tempfile);
 
     reset_prog_mode();
     wrefresh(state_of_curses.main_win);
