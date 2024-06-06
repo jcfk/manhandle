@@ -32,13 +32,12 @@ void safe_asprintf(char **strp, char *fmt, ...) {
 }
 
 void safe_vasprintf(char **strp, char *fmt, va_list ap) {
-    SYSCALL(vasprintf(strp, fmt, ap));
+    if (vasprintf(strp, fmt, ap) < 0) syscall_err("vasprintf");
 }
 
 int safe_system(char *command) {
     int status = system(command);
-    if (status < 0)
-        syscall_err("system");
+    if (status < 0) syscall_err("system");
     return status;
 }
 
@@ -50,11 +49,11 @@ pid_t safe_fork(void) {
 }
 
 void safe_setenv(char *name, char *value, int overwrite) {
-    SYSCALL(setenv(name, value, overwrite));
+    if (setenv(name, value, overwrite) < 0) syscall_err("setenv");
 }
 
 void safe_unsetenv(char *name) {
-    SYSCALL(unsetenv(name));
+    if (unsetenv(name) < 0) syscall_err("unsetenv");
 }
 
 char *strip_last_newline(char *str) {
@@ -64,19 +63,19 @@ char *strip_last_newline(char *str) {
     return new_str;
 }
 
-/* watch the encodings */
+/* todo watch the encodings */
 void read_whole_file(char *fpath, char **strp) {
     FILE *fp = fopen(fpath, "r");
     if (!fp)
         syscall_err("fopen");
 
-    SYSCALL(fseek(fp, 0L, SEEK_END));
+    if (fseek(fp, 0L, SEEK_END) < 0) syscall_err("fseek");
 
     unsigned long length = ftell(fp);
     if (length < 0)
         syscall_err("ftell");
 
-    SYSCALL(fseek(fp, 0L, SEEK_SET));
+    if (fseek(fp, 0L, SEEK_SET) < 0) syscall_err("fseek");
 
     *strp = safe_malloc(sizeof(char)*length + 1);
     size_t transfered = fread(*strp, sizeof(char), length, fp);
@@ -84,5 +83,5 @@ void read_whole_file(char *fpath, char **strp) {
         err("unable to read file %s", fpath);
     (*strp)[length] = '\0';
 
-    SYSCALL(fclose(fp));
+    if (fclose(fp) < 0) syscall_err("fclose");
 }

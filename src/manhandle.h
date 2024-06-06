@@ -15,7 +15,6 @@
 #include "short_answer.h"
 
 #define STREQ(str1, str2) strcmp(str1, str2) == 0
-#define SYSCALL(call) if (call < 0) syscall_err(#call)
 
 struct options {
     int execute_immediately;
