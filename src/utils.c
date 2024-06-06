@@ -1,12 +1,5 @@
 #include "manhandle.h"
 
-void err(char *fmt, ...) {
-    va_list ap;
-    va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
-    exit(1);
-}
-
 void syscall_err(char *syscall) {
     err("%s() failed with errno %d: %s.\n", syscall, errno, strerror(errno));
 }
