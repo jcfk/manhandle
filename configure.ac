@@ -37,5 +37,10 @@ AC_DEFINE_UNQUOTED([USAGE],
     ["$(sed 's/"/\\"/g;s/$/\\n/g' doc/usage | tr -d '\n')"],
     ["Program usage generated from doc/usage"])
 
+# Generate --version
+AC_DEFINE_UNQUOTED([VERSION_FMT],
+    ["$(sed 's/"/\\"/g;s/$/\\n/g' doc/version | tr -d '\n')"],
+    ["Version format for --version"])
+
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT

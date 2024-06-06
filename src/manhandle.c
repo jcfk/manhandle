@@ -29,7 +29,7 @@ void print_help(void) {
 }
 
 void print_version(void) {
-    printf("%s\n", PACKAGE_STRING);
+    printf(VERSION_FMT, PACKAGE_STRING);
     exit(0);
 }
 
