@@ -21,7 +21,6 @@ void print_help(void) {
     exit(0);
 }
 
-/* todo: just use getopt */
 int options_parse(int argc, char *argv[]) {
     if (argc < 2)
         err("paradigm required\n");
