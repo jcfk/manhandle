@@ -97,7 +97,7 @@ int sa_execute_decision (int page) {
     return status;
 }
 
-/* handle --execute-immediately */
+/* todo handle --execute-immediately */
 void sa_handle_key(char key) {
     if (key == 'e') {
         editor(&state_of_decisions.files[state_of_gui.page].decision.sa.str);
