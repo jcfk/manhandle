@@ -101,7 +101,7 @@ void display_file(void) {
 
         safe_setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
 
-        execl("/bin/bash", "bash", "-c", opts.file_display, NULL);
+        execl("/bin/sh", "sh", "-c", opts.file_display, NULL);
         syscall_err("execl");
     }
 
