@@ -84,7 +84,7 @@ int sa_execute_decision (int page) {
     int status = safe_system(cmd);
     if (status)
         safe_asprintf(&state_of_gui.rip_message, 
-                      "Failure during execution of page %d/%d. Subshell:\n"
+                      "Failure during execution of page %d/%d. Shell:\n"
                       "  $ MH_FILE='%s'\n"
                       "  $ MH_STR='%s'\n"
                       "  $ %s\n"

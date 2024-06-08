@@ -4,9 +4,9 @@ USAGE:
 
 OPTIONS:
   --editor EDITOR        This argument overrides envvar $EDITOR.
-  --file-pager CMD       Run this in a subshell and open stdout in a pager
+  --file-pager CMD       Run this in a child shell and open stdout in a pager
                          (default: stat "$MH_FILE").
-  --file-display CMD     Run this in a subshell (default: none).
+  --file-display CMD     Run this in a child shell (default: none).
   --execute-immediately  Execute decisions upon entry, instead of waiting to
                          write out.
   --help                 Print this message.

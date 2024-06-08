@@ -23,8 +23,8 @@ manhandle multi-choice \
 ```
 
 This opens a multiple-choice interface looping over all `*.pdf`, where keys 1,
-2, 3, and 9 are bound to run the corresponding command in a subshell (with the
-current pdf exported as `$MH_FILE`).
+2, 3, and 9 are bound to run the corresponding command in a child shell (with
+the current pdf exported as `$MH_FILE`).
 
 ## Install
 
