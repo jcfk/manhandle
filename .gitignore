@@ -1,3 +1,5 @@
+autoscan.log
+configure.scan
 autom4te.cache
 build-aux
 aclocal.m4
