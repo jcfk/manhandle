@@ -1,6 +1,6 @@
 #define MULTI_CHOICE "multi-choice"
 
-struct mc_decision {
+struct mc_answer {
     int n;
 };
 

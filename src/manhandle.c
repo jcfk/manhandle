@@ -7,7 +7,7 @@ struct options opts = {
     .file_pager = NULL,
     .paradigm = NULL
 };
-struct state_of_decisions state_of_decisions;
+struct state_of_questions state_of_questions;
 struct state_of_gui state_of_gui = {
     .resized = 0,
     .shall_exit = 0,
@@ -101,7 +101,7 @@ int execute_decision(int page) {
 
 int all_files_complete(void) {
     for (int i = 0; i < state_of_gui.page_count; i++) {
-        if (!state_of_decisions.files[i].complete)
+        if (!state_of_questions.qs[i].answered)
             return 0;
     }
     return 1;

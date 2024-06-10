@@ -32,15 +32,15 @@ void sa_options_parse(int argc, char *argv[], int *i) {
 }
 
 void sa_state_initialize(int page) {
-    state_of_decisions.files[page].decision.sa.str = NULL;
+    state_of_questions.qs[page].answer.sa.str = NULL;
 }
 
 void sa_print_menu(void) {
     mvwaddstr(state_of_curses.main_win, GUI_MENU_Y, GUI_MENU_X, "MH_STR: ");
-    if (!state_of_decisions.files[state_of_gui.page].complete) {
+    if (!state_of_questions.qs[state_of_gui.page].answered) {
         waddstr(state_of_curses.main_win, "not set");
     } else {
-        char* str_short = strip_last_newline(state_of_decisions.files[state_of_gui.page].decision.sa.str);
+        char* str_short = strip_last_newline(state_of_questions.qs[state_of_gui.page].answer.sa.str);
         waddstr(state_of_curses.main_win, "\"");
         waddstr(state_of_curses.main_win, str_short);
         waddstr(state_of_curses.main_win, "\"");
@@ -57,9 +57,9 @@ char *sa_progress(void) {
 
     char *file;
     for (int i = 0; i < state_of_gui.page_count; i++) {
-        file = state_of_decisions.files[i].file;
-        if (state_of_decisions.files[i].complete) {
-            char *str_short = strip_last_newline(state_of_decisions.files[i].decision.sa.str);
+        file = state_of_questions.qs[i].file;
+        if (state_of_questions.qs[i].answered) {
+            char *str_short = strip_last_newline(state_of_questions.qs[i].answer.sa.str);
             safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: \"%s\"\n\n",
                           i, file, str_short);
             free(str_short);
@@ -75,8 +75,8 @@ char *sa_progress(void) {
 }
 
 int sa_execute_decision (int page) {
-    char *file = state_of_decisions.files[page].file;
-    char *str = strdup(state_of_decisions.files[page].decision.sa.str);
+    char *file = state_of_questions.qs[page].file;
+    char *str = strdup(state_of_questions.qs[page].answer.sa.str);
     char *cmd = opts.pd_opts.sa.cmd;
 
     safe_setenv("MH_FILE", file, 1);
@@ -100,11 +100,11 @@ int sa_execute_decision (int page) {
 /* todo handle --execute-immediately */
 void sa_handle_key(char key) {
     if (key == 'e') {
-        editor(&state_of_decisions.files[state_of_gui.page].decision.sa.str);
-        if (state_of_decisions.files[state_of_gui.page].decision.sa.str) {
-            state_of_decisions.files[state_of_gui.page].complete = 1;
+        editor(&state_of_questions.qs[state_of_gui.page].answer.sa.str);
+        if (state_of_questions.qs[state_of_gui.page].answer.sa.str) {
+            state_of_questions.qs[state_of_gui.page].answered = 1;
         } else {
-            state_of_decisions.files[state_of_gui.page].complete = 0;
+            state_of_questions.qs[state_of_gui.page].answered = 0;
         }
     }
 

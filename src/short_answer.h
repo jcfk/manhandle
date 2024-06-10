@@ -1,6 +1,6 @@
 #define SHORT_ANSWER "short-answer"
 
-struct sa_decision {
+struct sa_answer {
     char *str;
 };
 

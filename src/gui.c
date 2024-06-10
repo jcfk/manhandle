@@ -6,11 +6,11 @@ void state_initialize(char *files[], int file_count) {
     state_of_gui.page_count = file_count;
     messenger("");
 
-    /* initialize state_of_decisions */
-    state_of_decisions.files = safe_malloc((size_t)file_count*sizeof(struct state_of_file));
+    /* initialize state_of_questions */
+    state_of_questions.qs = safe_malloc((size_t)file_count*sizeof(struct state_of_question));
     for (int i = 0; i < file_count; i++) {
-        state_of_decisions.files[i].complete = 0;
-        state_of_decisions.files[i].file = files[i];
+        state_of_questions.qs[i].answered = 0;
+        state_of_questions.qs[i].file = files[i];
 
         if (STREQ(opts.paradigm, MULTI_CHOICE)) {
             mc_state_initialize(i);
@@ -26,8 +26,8 @@ void state_free() {
     if (state_of_gui.rip_message)
         free(state_of_gui.rip_message);
 
-    /* state_of_decisions */
-    free(state_of_decisions.files);
+    /* state_of_questions */
+    free(state_of_questions.qs);
 }
 
 void curses_initialize(void) {
@@ -68,7 +68,7 @@ void print_menubar(void) {
 void print_file_meta(void) {
     mvwprintw(state_of_curses.main_win, GUI_FILEMETA_Y, GUI_FILEMETA_X,
               "(%d/%d) '%s'", state_of_gui.page+1, state_of_gui.page_count, 
-              state_of_decisions.files[state_of_gui.page].file);
+              state_of_questions.qs[state_of_gui.page].file);
 }
 
 void print_menu(void) {
@@ -99,7 +99,7 @@ void display_file(void) {
         if (dup2(fd, STDIN_FILENO) < 0) syscall_err("dup2");
         if (close(fd) < 0) syscall_err("close");
 
-        safe_setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
+        safe_setenv("MH_FILE", state_of_questions.qs[state_of_gui.page].file, 1);
 
         execl("/bin/sh", "sh", "-c", opts.file_display, NULL);
         syscall_err("execl");
@@ -116,7 +116,7 @@ void pager_file(void) {
     def_prog_mode();
     endwin();
 
-    safe_setenv("MH_FILE", state_of_decisions.files[state_of_gui.page].file, 1);
+    safe_setenv("MH_FILE", state_of_questions.qs[state_of_gui.page].file, 1);
     char *cmd;
     safe_asprintf(&cmd, "less -fc <(%s)", opts.file_pager);
     safe_system(cmd);
@@ -304,7 +304,7 @@ void ask_write_out(void) {
         return;
 
     for (int i = 0; i < state_of_gui.page_count; i+=1) {
-        if (state_of_decisions.files[i].complete) {
+        if (state_of_questions.qs[i].answered) {
             if (execute_decision(i)) {
                 state_of_gui.exit_code = 1;
                 state_of_gui.shall_exit = 1;

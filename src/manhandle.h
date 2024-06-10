@@ -29,17 +29,17 @@ struct options {
     } pd_opts;
 };
 
-struct state_of_file {
-    int complete;
+struct state_of_question {
+    int answered;
     char *file;
     union {
-        struct mc_decision mc;
-        struct sa_decision sa;
-    } decision;
+        struct mc_answer mc;
+        struct sa_answer sa;
+    } answer;
 };
 
-struct state_of_decisions {
-    struct state_of_file *files;
+struct state_of_questions {
+    struct state_of_question *qs;
 };
 
 struct state_of_gui {
@@ -61,7 +61,7 @@ struct state_of_curses {
 };
 
 extern struct options opts;
-extern struct state_of_decisions state_of_decisions;
+extern struct state_of_questions state_of_questions;
 extern struct state_of_gui state_of_gui;
 extern struct state_of_curses state_of_curses;
 
