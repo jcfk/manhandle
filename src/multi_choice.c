@@ -43,7 +43,7 @@ void mc_options_parse(int argc, char *argv[], int *i) {
 }
 
 void mc_state_initialize(int page) {
-    state_of_decisions.files[page].decision.mc.n = 0;
+    state_of_decisions.files[page].decision.mc.n = -1;
 }
 
 void mc_print_menu(void) {
@@ -107,41 +107,49 @@ int mc_execute_decision(int page) {
     return status;
 }
 
-/* todo allow deselect all */
 void mc_handle_key(char key) {
-    int n = key - '0';
-
-    if (n < 0 || 9 < n)
-        return;
-
-    if (!opts.pd_opts.mc.choices[n]) {
-        messenger("%d) is not a choice.", n);
-        return;
-    }
-
-    if (opts.execute_immediately && state_of_decisions.files[state_of_gui.page].complete) {
-        messenger("Decision for page %d already executed.", state_of_gui.page+1);
-        return;
-    }
-
-    state_of_decisions.files[state_of_gui.page].complete = 1;
-    state_of_decisions.files[state_of_gui.page].decision.mc.n = n;
-
-    if (opts.execute_immediately) {
-        if (execute_decision(state_of_gui.page)) {
-            state_of_gui.shall_exit = 1;
+    if (key == 'u') {
+        if (opts.execute_immediately && state_of_decisions.files[state_of_gui.page].complete) {
+            messenger("Decision for page %d already executed.", state_of_gui.page+1);
             return;
         }
-    }
 
-    if (state_of_gui.page < state_of_gui.page_count-1)
-        nav_next();
+        state_of_decisions.files[state_of_gui.page].complete = 0;
+        state_of_decisions.files[state_of_gui.page].decision.mc.n = -1;
+    } else {
+        int n = key - '0';
+        if (n < 0 || 9 < n)
+            return;
 
-    if (all_files_complete()) {
+        if (!opts.pd_opts.mc.choices[n]) {
+            messenger("%d) is not a choice.", n);
+            return;
+        }
+
+        if (opts.execute_immediately && state_of_decisions.files[state_of_gui.page].complete) {
+            messenger("Decision for page %d already executed.", state_of_gui.page+1);
+            return;
+        }
+
+        state_of_decisions.files[state_of_gui.page].complete = 1;
+        state_of_decisions.files[state_of_gui.page].decision.mc.n = n;
+
         if (opts.execute_immediately) {
-            state_of_gui.shall_exit = 1;
-            return;
+            if (execute_decision(state_of_gui.page)) {
+                state_of_gui.shall_exit = 1;
+                return;
+            }
+            if (all_files_complete()) {
+                state_of_gui.shall_exit = 1;
+                state_of_gui.rip_message = strdup("Successfully executed decisions.\n");
+                return;
+            }
+        } else {
+            if (all_files_complete())
+                messenger("All pages complete. Check progress pager and write out.");
         }
-        messenger("All pages complete. Check progress pager and write out.");
+
+        if (state_of_gui.page < state_of_gui.page_count-1)
+            nav_next();
     }
 }
