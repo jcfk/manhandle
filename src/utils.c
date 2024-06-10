@@ -56,7 +56,6 @@ char *strip_last_newline(char *str) {
     return new_str;
 }
 
-/* todo watch the encodings */
 void read_whole_file(char *fpath, char **strp) {
     FILE *fp = fopen(fpath, "r");
     if (!fp)
@@ -83,7 +82,7 @@ char *make_tmp_name(void) {
     char *tmpdir = getenv("TMPDIR");
     if (!tmpdir)
         tmpdir = "/tmp";
-    /* how much format checking to do here? */
+    /* todo how much format checking to do here? */
     char *tempfile = malloc(sizeof(char)*
                             (strlen(tmpdir)+strlen("/manhandle.XXXXXX")+1));
     strcpy(tempfile, tmpdir);

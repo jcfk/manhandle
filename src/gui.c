@@ -85,7 +85,7 @@ void display_file(void) {
         return;
     }
 
-    /* todo: capture cursor here */
+    /* todo: possibly capture cursor here */
 
     def_prog_mode();
     endwin();
@@ -128,7 +128,7 @@ void pager_file(void) {
     wrefresh(state_of_curses.msg_win);
 }
 
-/* account for opts.paradigm */
+/* todo account for opts.paradigm */
 void pager_help(void) {
     char *help = "GUI:\n"
                  "  key      function\n"
@@ -143,7 +143,6 @@ void pager_help(void) {
     pager(help);
 }
 
-/* ugly */
 void pager_progress(void) {
     char *progress;
     if (STREQ(opts.paradigm, MULTI_CHOICE)) {
@@ -170,7 +169,7 @@ void pager(char *fmt, ...) {
     if (tempfd < 0) {
         syscall_err("mkstemp");
     } else {
-        vdprintf(tempfd, fmt, ap); /* check err? */
+        vdprintf(tempfd, fmt, ap);
         if (close(tempfd) < 0) syscall_err("close");
 
         char *cmd;
@@ -189,7 +188,7 @@ void pager(char *fmt, ...) {
 
 /* general-purpose text editor */
 void editor(char **strp) {
-    /* choose a fallback editor, like nano */
+    /* todo choose a fallback editor, like nano */
     char* editor;
     if (opts.editor) {
         editor = opts.editor;
@@ -324,7 +323,6 @@ void ask_exit(void) {
     state_of_gui.shall_exit = 1;
 }
 
-/* get escape */
 void handle_key(char key) {
     switch (key) {
         case 'q':

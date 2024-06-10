@@ -68,7 +68,6 @@ void mc_print_menu(void) {
     }
 }
 
-/* todo: even chatgpt's version looks much better than this */
 char *mc_progress(void) {
     char *lines;
     char *line;
@@ -108,7 +107,7 @@ int mc_execute_decision(int page) {
     return status;
 }
 
-/* allow deselect all */
+/* todo allow deselect all */
 void mc_handle_key(char key) {
     int n = key - '0';
 
