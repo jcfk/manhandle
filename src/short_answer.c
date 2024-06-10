@@ -97,16 +97,34 @@ int sa_execute_decision (int page) {
     return status;
 }
 
-/* todo handle --execute-immediately */
 void sa_handle_key(char key) {
     if (key == 'e') {
+        if (opts.execute_immediately && questions.qs[gui.page].answered) {
+            messenger("Decision for page %d already executed.", gui.page+1);
+            return;
+        }
+
         editor(&questions.qs[gui.page].answer.sa.str);
-        if (questions.qs[gui.page].answer.sa.str) {
-            questions.qs[gui.page].answered = 1;
-        } else {
+
+        if (!questions.qs[gui.page].answer.sa.str) {
             questions.qs[gui.page].answered = 0;
+        } else {
+            questions.qs[gui.page].answered = 1;
+
+            if (opts.execute_immediately) {
+                if (execute_decision(gui.page)) {
+                    gui.shall_exit = 1;
+                    return;
+                }
+                if (all_files_complete()) {
+                    gui.shall_exit = 1;
+                    gui.rip_message = strdup("Successfully executed decisions.\n");
+                    return;
+                }
+            } else {
+                if (all_files_complete())
+                    messenger("All pages complete. Check progress pager and write out.");
+            }
         }
     }
-
-    return;
 }

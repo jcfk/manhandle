@@ -218,6 +218,8 @@ void editor(char **strp) {
         free(cmd);
 
         if (status) {
+            /* todo this message for example could be overwritten by a message in
+               a calling function */
             messenger("Editor exited with code %d. No changes saved.", status);
         } else {
             char *new_str;
