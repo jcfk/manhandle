@@ -7,14 +7,14 @@ struct options opts = {
     .file_pager = NULL,
     .paradigm = NULL
 };
-struct state_of_questions state_of_questions;
-struct state_of_gui state_of_gui = {
+struct questions questions;
+struct gui gui = {
     .resized = 0,
     .shall_exit = 0,
     .display_pid = 0,
     .rip_message = NULL
 };
-struct state_of_curses state_of_curses;
+struct curses curses;
 
 void err(char *fmt, ...) {
     va_list ap;
@@ -100,8 +100,8 @@ int execute_decision(int page) {
 }
 
 int all_files_complete(void) {
-    for (int i = 0; i < state_of_gui.page_count; i++) {
-        if (!state_of_questions.qs[i].answered)
+    for (int i = 0; i < gui.page_count; i++) {
+        if (!questions.qs[i].answered)
             return 0;
     }
     return 1;
@@ -121,9 +121,9 @@ int main(int argc, char *argv[]) {
     refresh();
     endwin();
 
-    if (state_of_gui.rip_message)
-        printf("%s", state_of_gui.rip_message);
+    if (gui.rip_message)
+        printf("%s", gui.rip_message);
 
     state_free();
-    exit(state_of_gui.exit_code);
+    exit(gui.exit_code);
 }

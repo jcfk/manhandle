@@ -32,22 +32,22 @@ void sa_options_parse(int argc, char *argv[], int *i) {
 }
 
 void sa_state_initialize(int page) {
-    state_of_questions.qs[page].answer.sa.str = NULL;
+    questions.qs[page].answer.sa.str = NULL;
 }
 
 void sa_print_menu(void) {
-    mvwaddstr(state_of_curses.main_win, GUI_MENU_Y, GUI_MENU_X, "MH_STR: ");
-    if (!state_of_questions.qs[state_of_gui.page].answered) {
-        waddstr(state_of_curses.main_win, "not set");
+    mvwaddstr(curses.main_win, GUI_MENU_Y, GUI_MENU_X, "MH_STR: ");
+    if (!questions.qs[gui.page].answered) {
+        waddstr(curses.main_win, "not set");
     } else {
-        char* str_short = strip_last_newline(state_of_questions.qs[state_of_gui.page].answer.sa.str);
-        waddstr(state_of_curses.main_win, "\"");
-        waddstr(state_of_curses.main_win, str_short);
-        waddstr(state_of_curses.main_win, "\"");
+        char* str_short = strip_last_newline(questions.qs[gui.page].answer.sa.str);
+        waddstr(curses.main_win, "\"");
+        waddstr(curses.main_win, str_short);
+        waddstr(curses.main_win, "\"");
         free(str_short);
     }
 
-    mvwaddstr(state_of_curses.main_win, GUI_MENU_Y+2, GUI_MENU_X,
+    mvwaddstr(curses.main_win, GUI_MENU_Y+2, GUI_MENU_X,
               "(use 'e' for editor)");
 }
 
@@ -56,10 +56,10 @@ char *sa_progress(void) {
     char *line;
 
     char *file;
-    for (int i = 0; i < state_of_gui.page_count; i++) {
-        file = state_of_questions.qs[i].file;
-        if (state_of_questions.qs[i].answered) {
-            char *str_short = strip_last_newline(state_of_questions.qs[i].answer.sa.str);
+    for (int i = 0; i < gui.page_count; i++) {
+        file = questions.qs[i].file;
+        if (questions.qs[i].answered) {
+            char *str_short = strip_last_newline(questions.qs[i].answer.sa.str);
             safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: \"%s\"\n\n",
                           i, file, str_short);
             free(str_short);
@@ -75,21 +75,21 @@ char *sa_progress(void) {
 }
 
 int sa_execute_decision (int page) {
-    char *file = state_of_questions.qs[page].file;
-    char *str = strdup(state_of_questions.qs[page].answer.sa.str);
+    char *file = questions.qs[page].file;
+    char *str = strdup(questions.qs[page].answer.sa.str);
     char *cmd = opts.pd_opts.sa.cmd;
 
     safe_setenv("MH_FILE", file, 1);
     safe_setenv("MH_STR", strip_last_newline(str), 1);
     int status = safe_system(cmd);
     if (status)
-        safe_asprintf(&state_of_gui.rip_message, 
+        safe_asprintf(&gui.rip_message, 
                       "Failure during execution of page %d/%d. Shell:\n"
                       "  $ MH_FILE='%s'\n"
                       "  $ MH_STR='%s'\n"
                       "  $ %s\n"
                       "  exit code: %d\n",
-                      page+1, state_of_gui.page_count, file, str, cmd, status);
+                      page+1, gui.page_count, file, str, cmd, status);
     safe_unsetenv("MH_FILE");
     safe_unsetenv("MH_STR");
 
@@ -100,11 +100,11 @@ int sa_execute_decision (int page) {
 /* todo handle --execute-immediately */
 void sa_handle_key(char key) {
     if (key == 'e') {
-        editor(&state_of_questions.qs[state_of_gui.page].answer.sa.str);
-        if (state_of_questions.qs[state_of_gui.page].answer.sa.str) {
-            state_of_questions.qs[state_of_gui.page].answered = 1;
+        editor(&questions.qs[gui.page].answer.sa.str);
+        if (questions.qs[gui.page].answer.sa.str) {
+            questions.qs[gui.page].answered = 1;
         } else {
-            state_of_questions.qs[state_of_gui.page].answered = 0;
+            questions.qs[gui.page].answered = 0;
         }
     }
 

@@ -29,7 +29,7 @@ struct options {
     } pd_opts;
 };
 
-struct state_of_question {
+struct question {
     int answered;
     char *file;
     union {
@@ -38,11 +38,11 @@ struct state_of_question {
     } answer;
 };
 
-struct state_of_questions {
-    struct state_of_question *qs;
+struct questions {
+    struct question *qs;
 };
 
-struct state_of_gui {
+struct gui {
     int page;
     int page_count;
     int exit_code;
@@ -53,7 +53,7 @@ struct state_of_gui {
     char *rip_message;
 };
 
-struct state_of_curses {
+struct curses {
     int rows;
     int cols;
     WINDOW *main_win;
@@ -61,9 +61,9 @@ struct state_of_curses {
 };
 
 extern struct options opts;
-extern struct state_of_questions state_of_questions;
-extern struct state_of_gui state_of_gui;
-extern struct state_of_curses state_of_curses;
+extern struct questions questions;
+extern struct gui gui;
+extern struct curses curses;
 
 /* */
 

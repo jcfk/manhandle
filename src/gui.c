@@ -1,16 +1,16 @@
 #include "manhandle.h"
 
 void state_initialize(char *files[], int file_count) {
-    /* initialize state_of_gui */
-    state_of_gui.page = 0;
-    state_of_gui.page_count = file_count;
+    /* initialize gui */
+    gui.page = 0;
+    gui.page_count = file_count;
     messenger("");
 
-    /* initialize state_of_questions */
-    state_of_questions.qs = safe_malloc((size_t)file_count*sizeof(struct state_of_question));
+    /* initialize questions */
+    questions.qs = safe_malloc((size_t)file_count*sizeof(struct question));
     for (int i = 0; i < file_count; i++) {
-        state_of_questions.qs[i].answered = 0;
-        state_of_questions.qs[i].file = files[i];
+        questions.qs[i].answered = 0;
+        questions.qs[i].file = files[i];
 
         if (STREQ(opts.paradigm, MULTI_CHOICE)) {
             mc_state_initialize(i);
@@ -21,13 +21,13 @@ void state_initialize(char *files[], int file_count) {
 }
 
 void state_free() {
-    /* state_of_gui */
-    free(state_of_gui.message);
-    if (state_of_gui.rip_message)
-        free(state_of_gui.rip_message);
+    /* gui */
+    free(gui.message);
+    if (gui.rip_message)
+        free(gui.rip_message);
 
-    /* state_of_questions */
-    free(state_of_questions.qs);
+    /* questions */
+    free(questions.qs);
 }
 
 void curses_initialize(void) {
@@ -36,39 +36,39 @@ void curses_initialize(void) {
     initscr();
     cbreak();
     noecho();
-    getmaxyx(stdscr, state_of_curses.rows, state_of_curses.cols);
-    state_of_curses.main_win = newwin(state_of_curses.rows-1,
-        state_of_curses.cols, 0, 0);
-    state_of_curses.msg_win = newwin(1, state_of_curses.cols,
-        state_of_curses.rows-1, 0);
-    keypad(state_of_curses.msg_win, TRUE);
+    getmaxyx(stdscr, curses.rows, curses.cols);
+    curses.main_win = newwin(curses.rows-1,
+        curses.cols, 0, 0);
+    curses.msg_win = newwin(1, curses.cols,
+        curses.rows-1, 0);
+    keypad(curses.msg_win, TRUE);
 }
 
 void curses_resize(void) {
-    delwin(state_of_curses.main_win);
-    delwin(state_of_curses.msg_win);
-    getmaxyx(stdscr, state_of_curses.rows, state_of_curses.cols);
-    state_of_curses.main_win = newwin(state_of_curses.rows-1,
-        state_of_curses.cols, 0, 0);
-    state_of_curses.msg_win = newwin(1, state_of_curses.cols,
-        state_of_curses.rows-1, 0);
-    keypad(state_of_curses.msg_win, TRUE);
+    delwin(curses.main_win);
+    delwin(curses.msg_win);
+    getmaxyx(stdscr, curses.rows, curses.cols);
+    curses.main_win = newwin(curses.rows-1,
+        curses.cols, 0, 0);
+    curses.msg_win = newwin(1, curses.cols,
+        curses.rows-1, 0);
+    keypad(curses.msg_win, TRUE);
 }
 
 void curses_free(void) {
-    delwin(state_of_curses.main_win);
-    delwin(state_of_curses.msg_win);
+    delwin(curses.main_win);
+    delwin(curses.msg_win);
 }
 
 void print_menubar(void) {
-    mvwprintw(state_of_curses.main_win, GUI_MENUBAR_Y, GUI_MENUBAR_X, 
+    mvwprintw(curses.main_win, GUI_MENUBAR_Y, GUI_MENUBAR_X, 
         "q:Quit   h/left:Prev   l/right:Next   ?:Help");
 }
 
 void print_file_meta(void) {
-    mvwprintw(state_of_curses.main_win, GUI_FILEMETA_Y, GUI_FILEMETA_X,
-              "(%d/%d) '%s'", state_of_gui.page+1, state_of_gui.page_count, 
-              state_of_questions.qs[state_of_gui.page].file);
+    mvwprintw(curses.main_win, GUI_FILEMETA_Y, GUI_FILEMETA_X,
+              "(%d/%d) '%s'", gui.page+1, gui.page_count, 
+              questions.qs[gui.page].file);
 }
 
 void print_menu(void) {
@@ -99,7 +99,7 @@ void display_file(void) {
         if (dup2(fd, STDIN_FILENO) < 0) syscall_err("dup2");
         if (close(fd) < 0) syscall_err("close");
 
-        safe_setenv("MH_FILE", state_of_questions.qs[state_of_gui.page].file, 1);
+        safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
 
         execl("/bin/sh", "sh", "-c", opts.file_display, NULL);
         syscall_err("execl");
@@ -108,15 +108,15 @@ void display_file(void) {
     if (waitpid(pid, NULL, 0) < 0) syscall_err("waitpid");
 
     reset_prog_mode();
-    wrefresh(state_of_curses.main_win);
-    wrefresh(state_of_curses.msg_win);
+    wrefresh(curses.main_win);
+    wrefresh(curses.msg_win);
 }
 
 void pager_file(void) {
     def_prog_mode();
     endwin();
 
-    safe_setenv("MH_FILE", state_of_questions.qs[state_of_gui.page].file, 1);
+    safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
     char *cmd;
     safe_asprintf(&cmd, "less -fc <(%s)", opts.file_pager);
     safe_system(cmd);
@@ -124,8 +124,8 @@ void pager_file(void) {
     safe_unsetenv("MH_FILE");
 
     reset_prog_mode();
-    wrefresh(state_of_curses.main_win);
-    wrefresh(state_of_curses.msg_win);
+    wrefresh(curses.main_win);
+    wrefresh(curses.msg_win);
 }
 
 /* todo account for opts.paradigm */
@@ -182,8 +182,8 @@ void pager(char *fmt, ...) {
     free(tempfile);
 
     reset_prog_mode();
-    wrefresh(state_of_curses.main_win);
-    wrefresh(state_of_curses.msg_win);
+    wrefresh(curses.main_win);
+    wrefresh(curses.msg_win);
 }
 
 /* general-purpose text editor */
@@ -237,16 +237,16 @@ void editor(char **strp) {
     free(tempfile);
 
     reset_prog_mode();
-    wrefresh(state_of_curses.main_win);
-    wrefresh(state_of_curses.msg_win);
+    wrefresh(curses.main_win);
+    wrefresh(curses.msg_win);
 }
 
 /* general purpose messenger */
 void messenger(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    free(state_of_gui.message);
-    safe_vasprintf(&state_of_gui.message, fmt, ap);
+    free(gui.message);
+    safe_vasprintf(&gui.message, fmt, ap);
 }
 
 int ask(char *fmt, ...) {
@@ -255,22 +255,22 @@ int ask(char *fmt, ...) {
     char* message;
     safe_vasprintf(&message, fmt, ap);
 
-    wclear(state_of_curses.msg_win);
-    mvwprintw(state_of_curses.msg_win, 0, 0, "%s", message);
-    wrefresh(state_of_curses.msg_win);
+    wclear(curses.msg_win);
+    mvwprintw(curses.msg_win, 0, 0, "%s", message);
+    wrefresh(curses.msg_win);
     free(message);
 
     char key;
     for (;;) {
-        key = (char)wgetch(state_of_curses.msg_win);
+        key = (char)wgetch(curses.msg_win);
         switch (key) {
             case 'y':
-                wclear(state_of_curses.msg_win);
-                wrefresh(state_of_curses.msg_win);
+                wclear(curses.msg_win);
+                wrefresh(curses.msg_win);
                 return 1;
             case 'n':
-                wclear(state_of_curses.msg_win);
-                wrefresh(state_of_curses.msg_win);
+                wclear(curses.msg_win);
+                wrefresh(curses.msg_win);
                 return 0;
             default:
                 break;
@@ -279,17 +279,17 @@ int ask(char *fmt, ...) {
 }
 
 void nav_prev(void) {
-    if (state_of_gui.page > 0) {
-        state_of_gui.page -= 1;
-    } else if (state_of_gui.page == 0) {
+    if (gui.page > 0) {
+        gui.page -= 1;
+    } else if (gui.page == 0) {
         messenger("You've reached the beginning.");
     }
 }
 
 void nav_next(void) {
-    if (state_of_gui.page < state_of_gui.page_count - 1) {
-        state_of_gui.page += 1;
-    } else if (state_of_gui.page == state_of_gui.page_count - 1) {
+    if (gui.page < gui.page_count - 1) {
+        gui.page += 1;
+    } else if (gui.page == gui.page_count - 1) {
         messenger("You've reached the end.");
     }
 }
@@ -303,24 +303,24 @@ void ask_write_out(void) {
     if (!ask("Confirm execute all decisions and exit? (y/n)"))
         return;
 
-    for (int i = 0; i < state_of_gui.page_count; i+=1) {
-        if (state_of_questions.qs[i].answered) {
+    for (int i = 0; i < gui.page_count; i+=1) {
+        if (questions.qs[i].answered) {
             if (execute_decision(i)) {
-                state_of_gui.exit_code = 1;
-                state_of_gui.shall_exit = 1;
+                gui.exit_code = 1;
+                gui.shall_exit = 1;
                 return;
             }
         }
     }
 
-    state_of_gui.rip_message = strdup("Successfully executed decisions.\n");
-    state_of_gui.shall_exit = 1;
+    gui.rip_message = strdup("Successfully executed decisions.\n");
+    gui.shall_exit = 1;
 }
 
 void ask_exit(void) {
     if (!ask("Confirm quit? (y/n)"))
         return;
-    state_of_gui.shall_exit = 1;
+    gui.shall_exit = 1;
 }
 
 void handle_key(char key) {
@@ -352,7 +352,7 @@ void handle_key(char key) {
             pager_help();
             break;
         case (char)KEY_RESIZE:
-            state_of_gui.resized = 1;
+            gui.resized = 1;
             break;
         default: 
             /* becoz each paradigm has effectively its own gui */
@@ -369,30 +369,30 @@ void gui_loop(void) {
     char key;
     for (;;) {
         /* print state */
-        if (state_of_gui.resized) {
+        if (gui.resized) {
             curses_resize();
-            state_of_gui.resized = 0;
+            gui.resized = 0;
         }
-        wclear(state_of_curses.main_win);
+        wclear(curses.main_win);
         print_menubar();
         print_file_meta();
         print_menu();
-        wrefresh(state_of_curses.main_win);
+        wrefresh(curses.main_win);
 
         /* print message */
-        wclear(state_of_curses.msg_win);
-        mvwprintw(state_of_curses.msg_win, 0, 0, "%s", state_of_gui.message);
-        wrefresh(state_of_curses.msg_win);
+        wclear(curses.msg_win);
+        mvwprintw(curses.msg_win, 0, 0, "%s", gui.message);
+        wrefresh(curses.msg_win);
 
         /* get input */
-        key = (char)wgetch(state_of_curses.msg_win);
+        key = (char)wgetch(curses.msg_win);
 
         /* change state */
         messenger("");
         handle_key(key);
 
         /* exit */
-        if (state_of_gui.shall_exit)
+        if (gui.shall_exit)
             break;
     }
 }
