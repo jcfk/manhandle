@@ -74,6 +74,7 @@ char *sa_progress(void) {
     return lines;
 }
 
+/* todo ugly */
 int sa_execute_decision (int page) {
     char *file = questions.qs[page].file;
     char *str = strdup(questions.qs[page].answer.sa.str);
