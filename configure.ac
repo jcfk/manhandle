@@ -10,8 +10,8 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([ncurses], [mvwaddstr], [],
-    [AC_MSG_ERROR(["cannot compile without ncurses"])])
+AC_CHECK_LIB([curses], [mvwaddstr], [],
+    [AC_MSG_ERROR(["cannot compile without curses"])])
 
 AC_CHECK_LIB([readline], [rl_callback_handler_install], [],
     [AC_MSG_ERROR(["cannot compile without readline"])])
