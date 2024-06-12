@@ -40,7 +40,6 @@ AC_DEFINE_UNQUOTED([USAGE],
     ["$(sed 's/"/\\"/g;s/$/\\n/g' doc/usage | tr -d '\n')"],
     ["Program usage generated from doc/usage"])
 
-# https://askubuntu.com/a/27845
 AC_DEFINE_UNQUOTED([GUI_HELP],
     ["$(awk '/^NOTES:/{p=0} /GUI KEYBINDINGS:/{p=1} p' doc/usage | sed 's/"/\\"/g;s/$/\\n/g' | tr -d '\n')"],
     ["GUI help generated from doc/usage"])
