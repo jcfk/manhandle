@@ -2,20 +2,25 @@
 #include <errno.h>
 #include <fcntl.h>
 #include <locale.h>
+#include <readline/readline.h>
 #include <signal.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/wait.h>
+#include <time.h>
 #include <unistd.h>
 
 #include "config.h"
 #include "gui.h"
 #include "multi_choice.h"
 #include "short_answer.h"
+#include "readline.h"
 
+#define REASONABLE_ESCDELAY 50
 #define STREQ(str1, str2) strcmp(str1, str2) == 0
+#define CONTROL(c) (c & 0x1f)
 
 struct options {
     int execute_immediately;
@@ -84,11 +89,18 @@ void pager_progress(void);
 void pager(char *fmt, ...);
 void editor(char **strp);
 void messenger(char *fmt, ...);
+void readline_handler(char *line);
+int readline_getc(FILE *dummy);
+int readline_input_available(void);
+void readline_read_char(char ch);
+void quit_readline(void);
+char *msg_win_readline(char *prompt, char *default_value);
 int ask(char *fmt, ...);
 void nav_prev(void);
 void nav_next(void);
 void ask_write_out(void);
 void ask_exit(void);
+void rename_current_file(void);
 void handle_key(char key);
 void gui_loop(void);
 void err(char *fmt, ...);
@@ -104,6 +116,12 @@ void mc_print_menu(void);
 char *mc_progress(void);
 int mc_execute_decision(int page);
 void mc_handle_key(char key);
+void readline_handler(char *line);
+int readline_getc(FILE *dummy);
+int readline_input_available(void);
+void readline_read_char(char ch);
+void quit_readline(void);
+char *msg_win_readline(char *prompt, char *default_value);
 void sa_options_parse(int argc, char *argv[], int *i);
 void sa_state_initialize(int page);
 void sa_print_menu(void);
@@ -122,3 +140,4 @@ void safe_unsetenv(char *name);
 char *strip_last_newline(char *str);
 void read_whole_file(char *fpath, char **strp);
 char *make_tmp_name(void);
+

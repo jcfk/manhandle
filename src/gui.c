@@ -10,7 +10,7 @@ void state_initialize(char *files[], int file_count) {
     questions.qs = safe_malloc((size_t)file_count*sizeof(struct question));
     for (int i = 0; i < file_count; i++) {
         questions.qs[i].answered = 0;
-        questions.qs[i].file = files[i];
+        questions.qs[i].file = strdup(files[i]);
 
         if (STREQ(opts.paradigm, MULTI_CHOICE)) {
             mc_state_initialize(i);
@@ -27,6 +27,8 @@ void state_free() {
         free(gui.rip_message);
 
     /* questions */
+    for (int i = 0; i < gui.page_count; i++)
+        free(questions.qs[i].file);
     free(questions.qs);
 }
 
@@ -37,11 +39,15 @@ void curses_initialize(void) {
     cbreak();
     noecho();
     getmaxyx(stdscr, curses.rows, curses.cols);
+
     curses.main_win = newwin(curses.rows-1,
         curses.cols, 0, 0);
     curses.msg_win = newwin(1, curses.cols,
         curses.rows-1, 0);
+
     keypad(curses.msg_win, TRUE);
+    set_escdelay(REASONABLE_ESCDELAY);
+    nodelay(curses.msg_win, FALSE);
 }
 
 void curses_resize(void) {
@@ -130,17 +136,7 @@ void pager_file(void) {
 
 /* todo account for opts.paradigm */
 void pager_help(void) {
-    char *help = "GUI:\n"
-                 "  key      function\n"
-                 "  q        Quit\n"
-                 "  h/left   Prev page\n"
-                 "  l/right  Next page\n"
-                 "  v        Run --file-pager\n"
-                 "  d        Run --file-display\n"
-                 "  p        Progress pager\n"
-                 "  w        Write out decisions\n"
-                 "  ?        Help pager\n";
-    pager(help);
+    pager(GUI_HELP);
 }
 
 void pager_progress(void) {
@@ -270,6 +266,7 @@ int ask(char *fmt, ...) {
                 wclear(curses.msg_win);
                 wrefresh(curses.msg_win);
                 return 1;
+            case ESC:
             case 'n':
                 wclear(curses.msg_win);
                 wrefresh(curses.msg_win);
@@ -325,45 +322,73 @@ void ask_exit(void) {
     gui.shall_exit = 1;
 }
 
+void rename_current_file(void) {
+    if (opts.execute_immediately && questions.qs[gui.page].answered) {
+        messenger("Cannot rename file whose decision has been executed.");
+        return;
+    }
+
+    char *new_filename = msg_win_readline("Rename: ", questions.qs[gui.page].file);
+    if (!new_filename)
+        return;
+
+    char *cmd;
+    asprintf(&cmd, "mv \"$MH_FILE\" \"%s\"", new_filename);
+    safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
+    int status = safe_system(cmd);
+    safe_unsetenv("MH_FILE");
+    free(cmd);
+    if (status) {
+        messenger("Unable to rename file (mv exited with status %d).", status);
+        return;
+    }
+
+    free(questions.qs[gui.page].file);
+    questions.qs[gui.page].file = new_filename;
+}
+
 void handle_key(char key) {
     switch (key) {
-        case 'q':
-            ask_exit();
-            break;
-        case (char)KEY_LEFT:
-        case 'h':
-            nav_prev();
-            break;
-        case (char)KEY_RIGHT:
-        case 'l':
-            nav_next();
-            break;
-        case 'v':
-            pager_file();
-            break;
-        case 'd':
-            display_file();
-            break;
-        case 'p':
-            pager_progress();
-            break;
-        case 'w':
-            ask_write_out();
-            break;
-        case '?':
-            pager_help();
-            break;
-        case (char)KEY_RESIZE:
-            gui.resized = 1;
-            break;
-        default: 
-            /* becoz each paradigm has effectively its own gui */
-            if (STREQ(opts.paradigm, MULTI_CHOICE)) {
-                mc_handle_key(key);
-            } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
-                sa_handle_key(key);
-            }
-            break;
+    case 'q':
+        ask_exit();
+        break;
+    case (char)KEY_LEFT:
+    case 'h':
+        nav_prev();
+        break;
+    case (char)KEY_RIGHT:
+    case 'l':
+        nav_next();
+        break;
+    case 'v':
+        pager_file();
+        break;
+    case 'd':
+        display_file();
+        break;
+    case 'p':
+        pager_progress();
+        break;
+    case 'w':
+        ask_write_out();
+        break;
+    case '?':
+        pager_help();
+        break;
+    case CONTROL('r'):
+        rename_current_file();
+        break;
+    case (char)KEY_RESIZE:
+        gui.resized = 1;
+        break;
+    default:
+        /* becoz each paradigm has effectively its own gui */
+        if (STREQ(opts.paradigm, MULTI_CHOICE)) {
+            mc_handle_key(key);
+        } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
+            sa_handle_key(key);
+        }
+        break;
     }
 }
 

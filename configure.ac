@@ -13,6 +13,9 @@ AC_PROG_CC
 AC_CHECK_LIB([ncurses], [mvwaddstr], [],
     [AC_MSG_ERROR(["cannot compile without ncurses"])])
 
+AC_CHECK_LIB([readline], [rl_callback_handler_install], [],
+    [AC_MSG_ERROR(["cannot compile without readline"])])
+
 # Checks for header files.
 AC_CHECK_HEADER([errno.h], [],
     [AC_MSG_ERROR(["cannot compile without errno.h"])])
@@ -36,6 +39,11 @@ AC_CHECK_FUNCS([dup2 setenv strdup])
 AC_DEFINE_UNQUOTED([USAGE],
     ["$(sed 's/"/\\"/g;s/$/\\n/g' doc/usage | tr -d '\n')"],
     ["Program usage generated from doc/usage"])
+
+# https://askubuntu.com/a/27845
+AC_DEFINE_UNQUOTED([GUI_HELP],
+    ["$(awk '/^NOTES:/{p=0} /GUI KEYBINDINGS:/{p=1} p' doc/usage | sed 's/"/\\"/g;s/$/\\n/g' | tr -d '\n')"],
+    ["GUI help generated from doc/usage"])
 
 # Generate --version
 AC_DEFINE_UNQUOTED([VERSION_FMT],

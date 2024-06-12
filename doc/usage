@@ -11,17 +11,6 @@ OPTIONS:
                          write out.
   --help                 Print this message.
 
-GUI:
-  key      function
-  q        Quit
-  h/left   Prev page
-  l/right  Next page
-  v        Run --file-pager
-  d        Run --file-display
-  p        Progress pager
-  w        Write out decisions
-  ?        Help pager
-
 PARADIGM multi-choice:
   Multiple choice binds keys 0-9 to commands through the --choice option.
 
@@ -35,6 +24,18 @@ PARADIGM short-answer:
   OPTIONS:
     --cmd CMD  Execute CMD per file, where CMD references both $MH_FILE and
                $MH_STR (eg. 'mv "$MH_FILE" "$MH_STR"').
+
+GUI KEYBINDINGS:
+  key      function
+  q        Quit
+  h/left   Prev page
+  l/right  Next page
+  v        Run --file-pager
+  d        Run --file-display
+  p        Progress pager
+  w        Write out decisions
+  ?        Help pager
+  C-r      Rename current file
 
 NOTES:
   Temp files are created respecting envvar TMPDIR (eg. "/home/jacob/mytmp").
