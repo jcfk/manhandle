@@ -40,10 +40,8 @@ void curses_initialize(void) {
     noecho();
     getmaxyx(stdscr, curses.rows, curses.cols);
 
-    curses.main_win = newwin(curses.rows-1,
-        curses.cols, 0, 0);
-    curses.msg_win = newwin(1, curses.cols,
-        curses.rows-1, 0);
+    curses.main_win = newwin(curses.rows-1, curses.cols, 0, 0);
+    curses.msg_win = newwin(1, curses.cols, curses.rows-1, 0);
 
     keypad(curses.msg_win, TRUE);
     set_escdelay(REASONABLE_ESCDELAY);
@@ -54,10 +52,10 @@ void curses_resize(void) {
     delwin(curses.main_win);
     delwin(curses.msg_win);
     getmaxyx(stdscr, curses.rows, curses.cols);
-    curses.main_win = newwin(curses.rows-1,
-        curses.cols, 0, 0);
-    curses.msg_win = newwin(1, curses.cols,
-        curses.rows-1, 0);
+
+    curses.main_win = newwin(curses.rows-1, curses.cols, 0, 0);
+    curses.msg_win = newwin(1, curses.cols, curses.rows-1, 0);
+
     keypad(curses.msg_win, TRUE);
 }
 
