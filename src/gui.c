@@ -39,24 +39,21 @@ void curses_initialize(void) {
     cbreak();
     noecho();
     getmaxyx(stdscr, curses.rows, curses.cols);
+    set_escdelay(REASONABLE_ESCDELAY);
 
     curses.main_win = newwin(curses.rows-1, curses.cols, 0, 0);
     curses.msg_win = newwin(1, curses.cols, curses.rows-1, 0);
 
     keypad(curses.msg_win, TRUE);
-    set_escdelay(REASONABLE_ESCDELAY);
     nodelay(curses.msg_win, FALSE);
 }
 
 void curses_resize(void) {
-    delwin(curses.main_win);
-    delwin(curses.msg_win);
     getmaxyx(stdscr, curses.rows, curses.cols);
 
-    curses.main_win = newwin(curses.rows-1, curses.cols, 0, 0);
-    curses.msg_win = newwin(1, curses.cols, curses.rows-1, 0);
-
-    keypad(curses.msg_win, TRUE);
+    wresize(curses.main_win, curses.rows-1, curses.cols);
+    wresize(curses.msg_win, 1, curses.cols);
+    mvwin(curses.msg_win, curses.rows-1, 0);
 }
 
 void curses_free(void) {
@@ -81,6 +78,20 @@ void print_menu(void) {
     } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         sa_print_menu();
     }
+}
+
+void print_main_win(void) {
+    wclear(curses.main_win);
+    print_menubar();
+    print_file_meta();
+    print_menu();
+    wrefresh(curses.main_win);
+}
+
+void print_msg_win(void) {
+    wclear(curses.msg_win);
+    mvwprintw(curses.msg_win, 0, 0, "%s", gui.message);
+    wrefresh(curses.msg_win);
 }
 
 void display_file(void) {
@@ -398,16 +409,8 @@ void gui_loop(void) {
             curses_resize();
             gui.resized = 0;
         }
-        wclear(curses.main_win);
-        print_menubar();
-        print_file_meta();
-        print_menu();
-        wrefresh(curses.main_win);
-
-        /* print message */
-        wclear(curses.msg_win);
-        mvwprintw(curses.msg_win, 0, 0, "%s", gui.message);
-        wrefresh(curses.msg_win);
+        print_main_win();
+        print_msg_win();
 
         /* get input */
         key = (char)wgetch(curses.msg_win);

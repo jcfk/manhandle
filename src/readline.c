@@ -1,5 +1,13 @@
 #include "manhandle.h"
 
+/*
+ * This readline integration is due to
+ *
+ * https://github.com/ulfalizer/readline-and-ncurses
+ *
+ * Copyright (c) 2015-2019, Ulf Magnusson <ulfalizer@gmail.com>
+ */
+
 struct mhreadline mhreadline;
 
 void readline_handler(char *line) {
@@ -27,17 +35,27 @@ void quit_readline(void) {
     mhreadline.line = NULL;
 }
 
+void print_msg_win_readline(void) {
+    wclear(curses.msg_win);
+    mvwprintw(curses.msg_win, 0, 0, "%s%s", rl_prompt, rl_line_buffer);
+    wmove(curses.msg_win, 0, rl_point+strlen(rl_prompt));
+    wrefresh(curses.msg_win);
+}
+
 /* general purpose curses readline */
-/* (inspiration of https://github.com/ulfalizer/readline-and-ncurses) */
 char *msg_win_readline(char *prompt, char *default_value) {
     struct timespec nano_escdelay = {.tv_nsec = get_escdelay() * 1000000};
 
-    /* todo probably going to want to redo this with keypad on */
-    keypad(curses.msg_win, FALSE);
     rl_getc_function = readline_getc;
     rl_input_available_hook = readline_input_available;
+
+    rl_catch_signals = 0;
+    rl_catch_sigwinch = 0;
+    rl_change_environment = 0;
+
     rl_callback_handler_install(prompt, readline_handler);
 
+    keypad(curses.msg_win, FALSE);
     if (default_value)
         rl_insert_text(default_value);
     mhreadline.reading = 1;
@@ -45,14 +63,12 @@ char *msg_win_readline(char *prompt, char *default_value) {
     int ch, ch2;
     while (mhreadline.reading) {
         /* print state */
-        wclear(curses.msg_win);
-        if (prompt) {
-            mvwprintw(curses.msg_win, 0, 0, "%s%s", prompt, rl_line_buffer);
-        } else {
-            mvwprintw(curses.msg_win, 0, 0, "%s", rl_line_buffer);
+        if (mhreadline.resized) {
+            curses_resize();
+            mhreadline.resized = 0;
         }
-        wmove(curses.msg_win, 0, rl_point+strlen(prompt));
-        wrefresh(curses.msg_win);
+        print_main_win();
+        print_msg_win_readline();
 
         /* get input */
         ch = wgetch(curses.msg_win);
@@ -76,6 +92,9 @@ char *msg_win_readline(char *prompt, char *default_value) {
                 readline_read_char(ch);
                 readline_read_char(ch2);
             }
+            break;
+        case KEY_RESIZE:
+            mhreadline.resized = 1;
             break;
         default:
             readline_read_char(ch);
