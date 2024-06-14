@@ -60,16 +60,22 @@ char *msg_win_readline(char *prompt, char *default_value) {
         /* change state */
         switch (ch) {
         case ESC:
-            nodelay(curses.msg_win, TRUE);
+            /*
+             * We are interpreting our own escape sequences. Wait ESCDELAY and
+             * check for the presence of another character.
+             */
             nanosleep(&nano_escdelay, NULL);
+
+            nodelay(curses.msg_win, TRUE);
             ch2 = wgetch(curses.msg_win);
-            if (ch2 < 0) { /* user means ESC */
+            nodelay(curses.msg_win, FALSE);
+
+            if (ch2 < 0) {
                 quit_readline();
             } else {
                 readline_read_char(ch);
                 readline_read_char(ch2);
             }
-            nodelay(curses.msg_win, FALSE);
             break;
         default:
             readline_read_char(ch);
