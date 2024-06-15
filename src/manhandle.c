@@ -39,6 +39,11 @@ int options_parse(int argc, char *argv[]) {
 
     /* defaults */
     opts.file_pager = "stat \"$MH_FILE\"";
+    opts.editor = getenv("EDITOR");
+#ifdef HAVE_NANO
+    if (!opts.editor)
+        opts.editor = "nano";
+#endif
 
     int dd = 0;
     int i = 1;

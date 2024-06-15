@@ -9,6 +9,12 @@ AM_INIT_AUTOMAKE([-Wall -Werror foreign subdir-objects])
 # Checks for compiler.
 AC_PROG_CC
 
+# Check for programs.
+AC_CHECK_PROG([HAVE_NANO], [nano], yes)
+if test x$HAVE_NANO == xyes ; then
+    AC_DEFINE_UNQUOTED([HAVE_NANO], 1, ["Presence of nano."])
+fi
+
 # Checks for libraries.
 AC_CHECK_LIB([curses], [mvwaddstr], [],
     [AC_MSG_ERROR(["cannot compile without curses"])])

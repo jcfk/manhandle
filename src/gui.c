@@ -193,16 +193,9 @@ void pager(char *fmt, ...) {
 
 /* general-purpose text editor */
 void editor(char **strp) {
-    /* todo choose a fallback editor, like nano */
-    char* editor;
-    if (opts.editor) {
-        editor = opts.editor;
-    } else {
-        editor = getenv("EDITOR");
-        if (!editor) {
-            messenger("Set EDITOR in the environment.");
-            return;
-        }
+    if (!opts.editor) {
+        messenger("No editor provided. Set EDITOR in the environment or use --editor.");
+        return;
     }
 
     def_prog_mode();
@@ -218,7 +211,7 @@ void editor(char **strp) {
         if (close(tempfd) < 0) syscall_err("close");
 
         char *cmd;
-        safe_asprintf(&cmd, "%s %s", editor, tempfile);
+        safe_asprintf(&cmd, "%s %s", opts.editor, tempfile);
         int status = safe_system(cmd);
         free(cmd);
 
