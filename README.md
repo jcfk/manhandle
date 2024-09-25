@@ -10,6 +10,7 @@ such files. It currently supports decision paradigms such as:
 
 * multiple-choice
 * short-answer
+* fuzzy-finder
 
 ## Example
 

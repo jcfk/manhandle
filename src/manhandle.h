@@ -16,8 +16,10 @@
 #include "gui.h"
 #include "multi_choice.h"
 #include "short_answer.h"
+#include "fuzzy_finder.h"
 #include "readline.h"
 
+#define GET_CMD_STDOUT_BS 1000
 #define REASONABLE_ESCDELAY 50
 #define STREQ(str1, str2) strcmp(str1, str2) == 0
 #define CONTROL(c) (c & 0x1f)
@@ -31,6 +33,7 @@ struct options {
     union {
         struct mc_options mc;
         struct sa_options sa;
+        struct ff_options ff;
     } pd_opts;
 };
 
@@ -40,6 +43,7 @@ struct question {
     union {
         struct mc_answer mc;
         struct sa_answer sa;
+        struct ff_answer ff;
     } answer;
 };
 
@@ -74,6 +78,13 @@ extern struct curses curses;
 
 /* r!cat *.c | grep -E "^\w.*) {" | sed 's/) {/);/g' */
 
+void ff_options_parse(int argc, char *argv[], int *i);
+void ff_state_initialize(int page);
+void ff_print_menu(void);
+char *ff_progress(void);
+int ff_execute_decision(int page);
+void ff_fuzzy_find_current_answer();
+void ff_handle_key(char key);
 void state_initialize(char *files[], int file_count);
 void state_free();
 void curses_initialize(void);
@@ -137,4 +148,4 @@ void safe_unsetenv(char *name);
 char *strip_last_newline(char *str);
 void read_whole_file(char *fpath, char **strp);
 char *make_tmp_name(void);
-
+int get_cmd_stdout(char *cmd, char **strp);

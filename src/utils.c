@@ -89,3 +89,26 @@ char *make_tmp_name(void) {
     strcat(tempfile, "/manhandle.XXXXXX");
     return tempfile;
 }
+
+int get_cmd_stdout(char *cmd, char **strp) {
+    FILE *fp = popen(cmd, "r");
+
+    /* what block size? */
+    int bs = GET_CMD_STDOUT_BS;
+    int alloced = 1;
+    char *str = malloc(sizeof(char)*alloced);
+    str[0] = '\0';
+    char block[bs];
+    while (1) {
+        if (!fgets(block, sizeof(char)*bs, fp))
+            break;
+        if (strlen(str)+strlen(block)+1 > alloced) {
+            alloced += bs;
+            str = realloc(str, sizeof(char)*alloced);
+        }
+        strcat(str, block);
+    }
+
+    *strp = str;
+    return pclose(fp);
+}

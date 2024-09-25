@@ -1,6 +1,21 @@
 USAGE:
   manhandle [OPTION...] multi-choice [--choice CHOICE]... FILE...
   manhandle [OPTION...] short-answer --cmd CMD FILE...
+  manhandle [OPTION...] fuzzy-finder --action CMD FILE...
+
+DESCRIPTION:
+  An ergonomic interface for making manual decisions over lists of files.
+
+DETAILED DESCRIPTION:
+  A sequence of navigable pages is created from the list of filenames. For each
+  page, an answer or decision is to provided via the decision interface, the
+  nature of which is determined by the chosen decision paradigm. Action is then
+  taken on the file, incorporating or entirely determined by the decision.
+  Actions can be executed immediately at decision time or by writing out at the
+  end.
+
+  Several convenience keybinds including file display and a progress pager are
+  provided.
 
 OPTIONS:
   --editor EDITOR        This argument overrides envvar $EDITOR.
@@ -24,6 +39,22 @@ PARADIGM short-answer:
   OPTIONS:
     --cmd CMD  Execute CMD per file, where CMD references both $MH_FILE and
                $MH_STR (eg. 'mv "$MH_FILE" "$MH_STR"').
+
+PARADIGM fuzzy-finder:
+  The decision interface is created by executing the required --fuzzy-finder
+  command, from which standard output is captured (minus a trailing newline, if
+  any). The current file name is exported as MH_FILE prior to executing the
+  command.
+
+  Action is taken by executing the required --action command. The current file
+  name is exported as MH_FILE and the selected string is exported as MH_STR
+  prior to executing the command.
+
+  OPTIONS:
+    --fuzzy-finder CMD  This command is executed to create the fuzzy finder
+                        interface (eg. 'find sync -type d | fzf').
+    --action CMD        This command is executed when taking action
+                        (eg. 'mv "$MH_FILE" "$MH_STR"').
 
 GUI KEYBINDINGS:
   key      function

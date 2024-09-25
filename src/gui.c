@@ -16,6 +16,8 @@ void state_initialize(char *files[], int file_count) {
             mc_state_initialize(i);
         } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
             sa_state_initialize(i);
+        } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+            ff_state_initialize(i);
         }
     }
 }
@@ -77,6 +79,8 @@ void print_menu(void) {
         mc_print_menu();
     } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         sa_print_menu();
+    } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+        ff_print_menu();
     }
 }
 
@@ -154,6 +158,8 @@ void pager_progress(void) {
         progress = mc_progress();
     } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         progress = sa_progress();
+    } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+        progress = ff_progress();
     } else {
         progress = strdup("");
     }
@@ -389,6 +395,8 @@ void handle_key(char key) {
             mc_handle_key(key);
         } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
             sa_handle_key(key);
+        } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+            ff_handle_key(key);
         }
         break;
     }

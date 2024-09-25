@@ -87,6 +87,8 @@ int options_parse(int argc, char *argv[]) {
             mc_options_parse(argc, argv, &i);
         } else if (STREQ(argv[i], SHORT_ANSWER)) {
             sa_options_parse(argc, argv, &i);
+        } else if (STREQ(argv[i], FUZZY_FINDER)) {
+            ff_options_parse(argc, argv, &i);
         } else {
             err("unknown paradigm \"%s\"\n", argv[i]);
         }
@@ -100,6 +102,8 @@ int execute_decision(int page) {
         return mc_execute_decision(page);
     } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         return sa_execute_decision(page);
+    } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+        return ff_execute_decision(page);
     }
     return 0;
 }
