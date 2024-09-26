@@ -95,6 +95,12 @@ int sa_execute_decision (int page) {
     return status;
 }
 
+void sa_unanswer(int page) {
+    if (questions.qs[page].answer.sa.str)
+        free(questions.qs[page].answer.sa.str);
+    questions.qs[page].answer.sa.str = NULL;
+}
+
 void sa_handle_key(char key) {
     if (key == 'e') {
         if (opts.execute_immediately && questions.qs[gui.page].answered) {

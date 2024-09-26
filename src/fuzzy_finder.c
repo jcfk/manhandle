@@ -52,8 +52,6 @@ void ff_print_menu(void) {
 
     mvwaddstr(curses.main_win, GUI_MENU_Y+2, GUI_MENU_X,
               "(use 'f' for fuzzy finder)");
-    mvwaddstr(curses.main_win, GUI_MENU_Y+3, GUI_MENU_X,
-              "(use 'u' to clear)");
 }
 
 char *ff_progress(void) {
@@ -130,19 +128,14 @@ void ff_fuzzy_find_current_answer() {
     wrefresh(curses.msg_win);
 }
 
-void ff_handle_key(char key) {
-    if (key == 'u') {
-        if (opts.execute_immediately && questions.qs[gui.page].answered) {
-            messenger("Decision for page %d already executed.", gui.page+1);
-            return;
-        }
+void ff_unanswer(int page) {
+    if (questions.qs[gui.page].answer.ff.str)
+        free(questions.qs[gui.page].answer.ff.str);
+    questions.qs[gui.page].answer.ff.str = NULL;
+}
 
-        questions.qs[gui.page].answered = 0;
-        if (questions.qs[gui.page].answer.ff.str) {
-            free(questions.qs[gui.page].answer.ff.str);
-            questions.qs[gui.page].answer.ff.str = NULL;
-        }
-    } else if (key == 'f') {
+void ff_handle_key(char key) {
+    if (key == 'f') {
         if (opts.execute_immediately && questions.qs[gui.page].answered) {
             messenger("Decision for page %d already executed.", gui.page+1);
             return;

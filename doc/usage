@@ -64,6 +64,7 @@ GUI KEYBINDINGS:
   v        Run --file-pager
   d        Run --file-display
   p        Progress pager
+  u        Un-answer current page
   w        Write out decisions
   ?        Help pager
   C-r      Rename current file

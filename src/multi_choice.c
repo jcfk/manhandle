@@ -105,49 +105,43 @@ int mc_execute_decision(int page) {
     return status;
 }
 
+void mc_unanswer(int page) {
+    questions.qs[page].answer.mc.n = -1;
+}
+
 void mc_handle_key(char key) {
-    if (key == 'u') {
-        if (opts.execute_immediately && questions.qs[gui.page].answered) {
-            messenger("Decision for page %d already executed.", gui.page+1);
-            return;
-        }
+    int n = key - '0';
+    if (n < 0 || 9 < n)
+        return;
 
-        questions.qs[gui.page].answered = 0;
-        questions.qs[gui.page].answer.mc.n = -1;
-    } else {
-        int n = key - '0';
-        if (n < 0 || 9 < n)
-            return;
-
-        if (!opts.pd_opts.mc.choices[n]) {
-            messenger("%d) is not a choice.", n);
-            return;
-        }
-
-        if (opts.execute_immediately && questions.qs[gui.page].answered) {
-            messenger("Decision for page %d already executed.", gui.page+1);
-            return;
-        }
-
-        questions.qs[gui.page].answered = 1;
-        questions.qs[gui.page].answer.mc.n = n;
-
-        if (opts.execute_immediately) {
-            if (execute_decision(gui.page)) {
-                gui.shall_exit = 1;
-                return;
-            }
-            if (all_files_complete()) {
-                gui.shall_exit = 1;
-                gui.rip_message = strdup("Successfully executed decisions.\n");
-                return;
-            }
-        } else {
-            if (all_files_complete())
-                messenger("All pages complete. Check progress pager and write out.");
-        }
-
-        if (gui.page < gui.page_count-1)
-            nav_next();
+    if (!opts.pd_opts.mc.choices[n]) {
+        messenger("%d) is not a choice.", n);
+        return;
     }
+
+    if (opts.execute_immediately && questions.qs[gui.page].answered) {
+        messenger("Decision for page %d already executed.", gui.page+1);
+        return;
+    }
+
+    questions.qs[gui.page].answered = 1;
+    questions.qs[gui.page].answer.mc.n = n;
+
+    if (opts.execute_immediately) {
+        if (execute_decision(gui.page)) {
+            gui.shall_exit = 1;
+            return;
+        }
+        if (all_files_complete()) {
+            gui.shall_exit = 1;
+            gui.rip_message = strdup("Successfully executed decisions.\n");
+            return;
+        }
+    } else {
+        if (all_files_complete())
+            messenger("All pages complete. Check progress pager and write out.");
+    }
+
+    if (gui.page < gui.page_count-1)
+        nav_next();
 }

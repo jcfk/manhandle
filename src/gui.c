@@ -350,6 +350,22 @@ void rename_current_file(void) {
     questions.qs[gui.page].file = new_filename;
 }
 
+void unanswer(void) {
+    if (opts.execute_immediately && questions.qs[gui.page].answered) {
+        messenger("Cannot unanswer page whose decision has been executed.");
+        return;
+    }
+
+    questions.qs[gui.page].answered = 0;
+    if (STREQ(opts.paradigm, MULTI_CHOICE)) {
+        mc_unanswer(gui.page);
+    } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
+        sa_unanswer(gui.page);
+    } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+        ff_unanswer(gui.page);
+    }
+}
+
 void handle_key(char key) {
     switch (key) {
     case 'q':
@@ -371,6 +387,9 @@ void handle_key(char key) {
         break;
     case 'p':
         pager_progress();
+        break;
+    case 'u':
+        unanswer();
         break;
     case 'w':
         ask_write_out();
