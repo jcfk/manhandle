@@ -106,25 +106,22 @@ void sa_handle_key(char key) {
         editor(&questions.qs[gui.page].answer.sa.str);
         strip_last_newline(questions.qs[gui.page].answer.sa.str);
 
-        if (!questions.qs[gui.page].answer.sa.str) {
-            questions.qs[gui.page].answered = 0;
-        } else {
-            questions.qs[gui.page].answered = 1;
+        /* editor cannot leave str as NULL */
+        questions.qs[gui.page].answered = 1;
 
-            if (opts.execute_immediately) {
-                if (execute_decision(gui.page)) {
-                    gui.shall_exit = 1;
-                    return;
-                }
-                if (all_files_complete()) {
-                    gui.shall_exit = 1;
-                    gui.rip_message = strdup("Successfully executed decisions.\n");
-                    return;
-                }
-            } else {
-                if (all_files_complete())
-                    messenger("All pages complete. Check progress pager and write out.");
+        if (opts.execute_immediately) {
+            if (execute_decision(gui.page)) {
+                gui.shall_exit = 1;
+                return;
             }
+            if (all_files_complete()) {
+                gui.shall_exit = 1;
+                gui.rip_message = strdup("Successfully executed decisions.\n");
+                return;
+            }
+        } else {
+            if (all_files_complete())
+                messenger("All pages complete. Check progress pager and write out.");
         }
     }
 }
