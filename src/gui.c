@@ -228,13 +228,8 @@ void editor(char **strp) {
         } else {
             char *new_str;
             read_whole_file(tempfile, &new_str);
-            if (strlen(new_str) > 0) {
-                if (*strp)
-                    free(*strp);
-                *strp = new_str;
-            } else {
-                *strp = NULL;
-            }
+            if (*strp) free(*strp);
+            *strp = new_str;
         }
 
         if (unlink(tempfile) < 0) syscall_err("unlink");
