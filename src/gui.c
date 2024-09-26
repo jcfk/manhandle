@@ -104,8 +104,6 @@ void display_file(void) {
         return;
     }
 
-    /* todo: possibly capture cursor here */
-
     def_prog_mode();
     endwin();
 
