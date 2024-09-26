@@ -37,11 +37,9 @@ void sa_print_menu(void) {
     if (!questions.qs[gui.page].answered) {
         waddstr(curses.main_win, "not set");
     } else {
-        char* str_short = strip_last_newline(questions.qs[gui.page].answer.sa.str);
         waddstr(curses.main_win, "\"");
-        waddstr(curses.main_win, str_short);
+        waddstr(curses.main_win, questions.qs[gui.page].answer.sa.str);
         waddstr(curses.main_win, "\"");
-        free(str_short);
     }
 
     mvwaddstr(curses.main_win, GUI_MENU_Y+2, GUI_MENU_X,
@@ -56,10 +54,8 @@ char *sa_progress(void) {
     for (int i = 0; i < gui.page_count; i++) {
         file = questions.qs[i].file;
         if (questions.qs[i].answered) {
-            char *str_short = strip_last_newline(questions.qs[i].answer.sa.str);
             safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: \"%s\"\n\n",
-                          i, file, str_short);
-            free(str_short);
+                          i, file, questions.qs[i].answer.sa.str);
         } else {
             safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: not set\n\n",
                           i, file);
@@ -74,11 +70,11 @@ char *sa_progress(void) {
 /* todo ugly */
 int sa_execute_decision (int page) {
     char *file = questions.qs[page].file;
-    char *str = strdup(questions.qs[page].answer.sa.str);
+    char *str = questions.qs[page].answer.sa.str;
     char *cmd = opts.pd_opts.sa.cmd;
 
     safe_setenv("MH_FILE", file, 1);
-    safe_setenv("MH_STR", strip_last_newline(str), 1);
+    safe_setenv("MH_STR", str, 1);
     int status = safe_system(cmd);
     if (status)
         safe_asprintf(&gui.rip_message, 
@@ -91,7 +87,6 @@ int sa_execute_decision (int page) {
     safe_unsetenv("MH_FILE");
     safe_unsetenv("MH_STR");
 
-    free(str);
     return status;
 }
 
@@ -109,6 +104,7 @@ void sa_handle_key(char key) {
         }
 
         editor(&questions.qs[gui.page].answer.sa.str);
+        strip_last_newline(questions.qs[gui.page].answer.sa.str);
 
         if (!questions.qs[gui.page].answer.sa.str) {
             questions.qs[gui.page].answered = 0;

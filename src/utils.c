@@ -49,11 +49,9 @@ void safe_unsetenv(char *name) {
     if (unsetenv(name) < 0) syscall_err("unsetenv");
 }
 
-char *strip_last_newline(char *str) {
-    char *new_str = strdup(str);
-    if (new_str[strlen(new_str)-1] == '\n')
-        new_str[strlen(new_str)-1] = '\0';
-    return new_str;
+void strip_last_newline(char *str) {
+    if (str[strlen(str)-1] == '\n')
+        str[strlen(str)-1] = '\0';
 }
 
 void read_whole_file(char *fpath, char **strp) {

@@ -109,11 +109,8 @@ void ff_fuzzy_find_current_answer() {
 
     safe_setenv("MH_FILE", file, 1);
     int status = get_cmd_stdout(opts.pd_opts.ff.fuzzy_finder_cmd, &new_str);
+    strip_last_newline(new_str);
     safe_unsetenv("MH_FILE");
-
-    /* strip_last_newline(new_str); */
-    if (new_str[strlen(new_str)-1] == '\n')
-        new_str[strlen(new_str)-1] = '\0';
 
     if (status) {
         free(new_str);
