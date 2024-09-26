@@ -37,8 +37,6 @@ void mc_options_parse(int argc, char *argv[], int *i) {
     if (!choice_exists)
         err("multi-choice requires at least one --choice\n");
 
-    if (j == argc)
-        err("no files provided\n");
     *i = j;
 }
 

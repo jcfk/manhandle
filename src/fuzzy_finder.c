@@ -33,9 +33,6 @@ void ff_options_parse(int argc, char *argv[], int *i) {
     if (!opts.pd_opts.ff.action_cmd)
         err("fuzzy-finder requires option --action\n");
 
-    if (j == argc)
-        err("no files provided\n");
-
     *i = j;
 }
 

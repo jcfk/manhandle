@@ -94,6 +94,9 @@ int options_parse(int argc, char *argv[]) {
         }
     }
 
+    if (i == argc)
+        err("no files provided\n");
+
     return i;
 }
 

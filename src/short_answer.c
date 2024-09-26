@@ -25,9 +25,6 @@ void sa_options_parse(int argc, char *argv[], int *i) {
     if (!opts.pd_opts.sa.cmd)
         err("short-answer requires a --cmd\n");
 
-    if (j == argc)
-        err("no files provided\n");
-
     *i = j;
 }
 
