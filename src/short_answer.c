@@ -105,9 +105,7 @@ void sa_handle_key(char key) {
 
         editor(&questions.qs[gui.page].answer.sa.str);
         strip_last_newline(questions.qs[gui.page].answer.sa.str);
-
-        /* editor cannot leave str as NULL */
-        questions.qs[gui.page].answered = 1;
+        questions.qs[gui.page].answered = 1; /* editor cannot leave str as NULL */
 
         if (opts.execute_immediately) {
             if (execute_decision(gui.page)) {

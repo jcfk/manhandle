@@ -124,8 +124,8 @@ void mc_handle_key(char key) {
         return;
     }
 
-    questions.qs[gui.page].answered = 1;
     questions.qs[gui.page].answer.mc.n = n;
+    questions.qs[gui.page].answered = 1;
 
     if (opts.execute_immediately) {
         if (execute_decision(gui.page)) {

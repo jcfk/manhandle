@@ -118,6 +118,7 @@ void ff_fuzzy_find_current_answer() {
     } else {
         if (str) free(str);
         questions.qs[gui.page].answer.ff.str = new_str;
+        questions.qs[gui.page].answered = 1;
     }
 
     reset_prog_mode();
@@ -140,11 +141,7 @@ void ff_handle_key(char key) {
 
         ff_fuzzy_find_current_answer();
 
-        if (!questions.qs[gui.page].answer.ff.str) {
-            questions.qs[gui.page].answered = 0;
-        } else {
-            questions.qs[gui.page].answered = 1;
-
+        if (questions.qs[gui.page].answered) {
             if (opts.execute_immediately) {
                 if (execute_decision(gui.page)) {
                     gui.shall_exit = 1;
