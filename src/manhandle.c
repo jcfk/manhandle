@@ -69,7 +69,7 @@ int options_parse(int argc, char *argv[]) {
         } else if (STREQ(argv[i], "--version")) {
             print_version();
         } else {
-            err("unknown option \"%s\"\n", argv[i]);
+            err("unknown global option \"%s\"\n", argv[i]);
         }
         i += 1;
     }
