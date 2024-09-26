@@ -45,7 +45,6 @@ int options_parse(int argc, char *argv[]) {
         opts.editor = "nano";
 #endif
 
-    int dd = 0;
     int i = 1;
     while (i < argc && argv[i][0] == '-') {
         if (STREQ(argv[i], "--editor")) {
@@ -69,10 +68,6 @@ int options_parse(int argc, char *argv[]) {
             print_help();
         } else if (STREQ(argv[i], "--version")) {
             print_version();
-        } else if (STREQ(argv[i], "--")) {
-            i += 1;
-            dd = 1;
-            break;
         } else {
             err("unknown option \"%s\"\n", argv[i]);
         }
@@ -82,16 +77,14 @@ int options_parse(int argc, char *argv[]) {
     if (i == argc)
         err("paradigm required\n");
 
-    if (!dd) {
-        if (STREQ(argv[i], MULTI_CHOICE)) {
-            mc_options_parse(argc, argv, &i);
-        } else if (STREQ(argv[i], SHORT_ANSWER)) {
-            sa_options_parse(argc, argv, &i);
-        } else if (STREQ(argv[i], FUZZY_FINDER)) {
-            ff_options_parse(argc, argv, &i);
-        } else {
-            err("unknown paradigm \"%s\"\n", argv[i]);
-        }
+    if (STREQ(argv[i], MULTI_CHOICE)) {
+        mc_options_parse(argc, argv, &i);
+    } else if (STREQ(argv[i], SHORT_ANSWER)) {
+        sa_options_parse(argc, argv, &i);
+    } else if (STREQ(argv[i], FUZZY_FINDER)) {
+        ff_options_parse(argc, argv, &i);
+    } else {
+        err("unknown paradigm \"%s\"\n", argv[i]);
     }
 
     if (i == argc)
