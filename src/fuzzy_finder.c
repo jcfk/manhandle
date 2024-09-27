@@ -61,11 +61,11 @@ char *ff_progress(void) {
     for (int i = 0; i < gui.page_count; i++) {
         file = questions.qs[i].file;
         if (questions.qs[i].answered) {
-            safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: \"%s\"\n\n",
-                          i, file, questions.qs[i].answer.ff.str);
+            safe_asprintf(&line, "(%d/%d) '%s'\n  MH_STR: \"%s\"\n\n",
+                          i, gui.page_count, file, questions.qs[i].answer.ff.str);
         } else {
-            safe_asprintf(&line, "Page: %d\nFile: '%s'\nMH_STR: not set\n\n",
-                          i, file);
+            safe_asprintf(&line, "(%d/%d) '%s'\n  MH_STR: not set\n\n",
+                          i, gui.page_count, file);
         }
         lines = realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
         strcat(lines, line);
