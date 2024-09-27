@@ -2,11 +2,9 @@
 
 void sa_options_parse(int argc, char *argv[], int *i) {
     int j = *i;
-    opts.paradigm = argv[j];
 
     opts.pd_opts.sa.cmd = NULL;
 
-    j += 1;
     while (j < argc && argv[j][0] == '-') {
         if (STREQ(argv[j], "--cmd")) {
             j += 1;

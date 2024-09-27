@@ -77,14 +77,17 @@ int options_parse(int argc, char *argv[]) {
     if (i == argc)
         err("paradigm required\n");
 
-    if (STREQ(argv[i], MULTI_CHOICE)) {
+    opts.paradigm = argv[i];
+    i += 1;
+
+    if (STREQ(opts.paradigm, MULTI_CHOICE)) {
         mc_options_parse(argc, argv, &i);
-    } else if (STREQ(argv[i], SHORT_ANSWER)) {
+    } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         sa_options_parse(argc, argv, &i);
-    } else if (STREQ(argv[i], FUZZY_FINDER)) {
+    } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
         ff_options_parse(argc, argv, &i);
     } else {
-        err("unknown paradigm \"%s\"\n", argv[i]);
+        err("unknown paradigm \"%s\"\n", opts.paradigm);
     }
 
     if (i == argc)

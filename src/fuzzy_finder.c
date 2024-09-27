@@ -2,8 +2,6 @@
 
 void ff_options_parse(int argc, char *argv[], int *i) {
     int j = *i;
-    opts.paradigm = argv[j];
-    j += 1;
 
     opts.pd_opts.ff.fuzzy_finder_cmd = NULL;
     opts.pd_opts.ff.action_cmd = NULL;

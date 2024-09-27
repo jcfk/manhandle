@@ -1,15 +1,13 @@
 #include "manhandle.h"
 
 void mc_options_parse(int argc, char *argv[], int *i) {
-    int n;
     int j = *i;
-    int choice_exists = 0;
-    opts.paradigm = argv[j];
 
     for (int k = 0; k < 10; k++)
         opts.pd_opts.mc.choices[k] = NULL;
 
-    j += 1;
+    int n;
+    int choice_exists = 0;
     while (j < argc && argv[j][0] == '-') {
         if (STREQ(argv[j], "--choice")) {
             j += 1;
