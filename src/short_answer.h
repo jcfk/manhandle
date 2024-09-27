@@ -5,5 +5,5 @@ struct sa_answer {
 };
 
 struct sa_options {
-    char *cmd;
+    char *action_cmd;
 };

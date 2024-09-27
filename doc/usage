@@ -1,6 +1,6 @@
 USAGE:
   manhandle [OPTION...] multi-choice [--choice CHOICE]... FILE...
-  manhandle [OPTION...] short-answer --cmd CMD FILE...
+  manhandle [OPTION...] short-answer --action CMD FILE...
   manhandle [OPTION...] fuzzy-finder --action CMD FILE...
 
 DESCRIPTION:
@@ -8,7 +8,7 @@ DESCRIPTION:
 
 DETAILED DESCRIPTION:
   A sequence of navigable pages is created from the list of filenames. For each
-  page, an answer or decision is to provided via the decision interface, the
+  page, an answer or decision is to be provided via the "decision interface", the
   nature of which is determined by the chosen decision paradigm. Action is then
   taken on the file, incorporating or entirely determined by the decision.
   Actions can be executed immediately at decision time or by writing out at the
@@ -29,32 +29,41 @@ OPTIONS:
 PARADIGM multi-choice:
   Multiple choice binds keys 0-9 to commands through the --choice option.
 
+  Action is taken by executing the selected command. The current file name is
+  exported as MH_FILE prior to executing the command.
+
   OPTIONS:
-    --choice CHOICE  Format CHOICE like n:cmd (eg. '1:rm "$MH_FILE"') to
-                     bind digit n ([0-9]) to cmd.
+    --choice CHOICE  Format CHOICE like n:cmd (eg. '1:rm "$MH_FILE"') to bind
+                     digit n ([0-9]) to cmd.
 
 PARADIGM short-answer:
-  Short-answer exports a given string as MH_STR.
+  The decision interface is created by executing --editor, EDITOR, or nano (in
+  that order of precedence) on a temporary file, which is read (minus a trailing
+  newline, if any) as a string.
+
+  Action is taken by executing the --action command, which is required. The
+  current file name is exported as MH_FILE and the string is exported as MH_STR
+  prior to executing the command.
 
   OPTIONS:
-    --cmd CMD  Execute CMD per file, where CMD references both $MH_FILE and
-               $MH_STR (eg. 'mv "$MH_FILE" "$MH_STR"').
+    --action CMD  This command is executed when taking action (eg. 'mv "$MH_FILE"
+                  "$MH_STR"').
 
 PARADIGM fuzzy-finder:
-  The decision interface is created by executing the required --fuzzy-finder
-  command, from which standard output is captured (minus a trailing newline, if
-  any). The current file name is exported as MH_FILE prior to executing the
-  command.
+  The decision interface is created by executing the given --fuzzy-finder
+  command, which is required, from which standard output is captured (minus a
+  trailing newline, if any) as the selection. The current file name is exported
+  as MH_FILE prior to executing the command.
 
-  Action is taken by executing the required --action command. The current file
-  name is exported as MH_FILE and the selected string is exported as MH_STR
-  prior to executing the command.
+  Action is taken by executing the given --action command, which is required.
+  The current file name is exported as MH_FILE and the selected string is
+  exported as MH_STR prior to executing the command.
 
   OPTIONS:
     --fuzzy-finder CMD  This command is executed to create the fuzzy finder
                         interface (eg. 'find sync -type d | fzf').
-    --action CMD        This command is executed when taking action
-                        (eg. 'mv "$MH_FILE" "$MH_STR"').
+    --action CMD        This command is executed when taking action (eg. 'mv
+                        "$MH_FILE" "$MH_STR"').
 
 GUI KEYBINDINGS:
   key      function

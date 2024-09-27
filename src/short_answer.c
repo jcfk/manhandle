@@ -3,14 +3,14 @@
 void sa_options_parse(int argc, char *argv[], int *i) {
     int j = *i;
 
-    opts.pd_opts.sa.cmd = NULL;
+    opts.pd_opts.sa.action_cmd = NULL;
 
     while (j < argc && argv[j][0] == '-') {
-        if (STREQ(argv[j], "--cmd")) {
+        if (STREQ(argv[j], "--action")) {
             j += 1;
             if (j == argc)
-                err("option --cmd takes an argument\n");
-            opts.pd_opts.sa.cmd = argv[j];
+                err("option --action takes an argument\n");
+            opts.pd_opts.sa.action_cmd = argv[j];
         } else if (STREQ(argv[j], "--")) {
             j += 1;
             break;
@@ -20,8 +20,8 @@ void sa_options_parse(int argc, char *argv[], int *i) {
         j += 1;
     }
 
-    if (!opts.pd_opts.sa.cmd)
-        err("short-answer requires a --cmd\n");
+    if (!opts.pd_opts.sa.action_cmd)
+        err("short-answer requires option --action\n");
 
     *i = j;
 }
@@ -69,7 +69,7 @@ char *sa_progress(void) {
 int sa_execute_decision (int page) {
     char *file = questions.qs[page].file;
     char *str = questions.qs[page].answer.sa.str;
-    char *cmd = opts.pd_opts.sa.cmd;
+    char *cmd = opts.pd_opts.sa.action_cmd;
 
     safe_setenv("MH_FILE", file, 1);
     safe_setenv("MH_STR", str, 1);
