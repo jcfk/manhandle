@@ -7,7 +7,7 @@ DESCRIPTION:
   An ergonomic interface for making manual decisions over lists of files.
 
 DETAILED DESCRIPTION:
-  A sequence of navigable pages is created from the list of filenames. For each
+  A navigable sequence of pages is created from the list of filenames. For each
   page, an answer or decision is to be provided via the "decision interface", the
   nature of which is determined by the chosen decision paradigm. Action is then
   taken on the file, incorporating or entirely determined by the decision.
