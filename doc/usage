@@ -1,7 +1,7 @@
 USAGE:
-  manhandle [OPTION...] multi-choice [--choice CHOICE]... FILE...
+  manhandle [OPTION...] multi-choice --choice CHOICE [--choice CHOICE]... FILE...
   manhandle [OPTION...] short-answer --action CMD FILE...
-  manhandle [OPTION...] fuzzy-finder --action CMD FILE...
+  manhandle [OPTION...] fuzzy-finder --fuzzy-finder CMD --action CMD FILE...
 
 DESCRIPTION:
   An ergonomic interface for making manual decisions over lists of files.
@@ -20,7 +20,7 @@ DETAILED DESCRIPTION:
 OPTIONS:
   --editor EDITOR        This argument overrides envvar $EDITOR.
   --file-pager CMD       Run this in a child shell and open stdout in a pager
-                         (default: stat "$MH_FILE").
+                         (default: 'stat "$MH_FILE"').
   --file-display CMD     Run this in a child shell (default: none).
   --execute-immediately  Execute decisions upon entry, instead of waiting to
                          write out.
@@ -28,6 +28,7 @@ OPTIONS:
 
 PARADIGM multi-choice:
   Multiple choice binds keys 0-9 to commands through the --choice option.
+  Between 1 and 10 different choices may be given.
 
   Action is taken by executing the selected command. The current file name is
   exported as MH_FILE prior to executing the command.
@@ -41,9 +42,9 @@ PARADIGM short-answer:
   that order of precedence) on a temporary file, which is read (minus a trailing
   newline, if any) as a string.
 
-  Action is taken by executing the --action command, which is required. The
-  current file name is exported as MH_FILE and the string is exported as MH_STR
-  prior to executing the command.
+  Action is taken by executing the --action command. The current file name is
+  exported as MH_FILE and the string is exported as MH_STR prior to executing
+  the command.
 
   OPTIONS:
     --action CMD  This command is executed when taking action (eg. 'mv "$MH_FILE"
@@ -51,13 +52,13 @@ PARADIGM short-answer:
 
 PARADIGM fuzzy-finder:
   The decision interface is created by executing the given --fuzzy-finder
-  command, which is required, from which standard output is captured (minus a
-  trailing newline, if any) as the selection. The current file name is exported
-  as MH_FILE prior to executing the command.
+  command, from which standard output is captured (minus a trailing newline, if
+  any) as the selection. The current file name is exported as MH_FILE prior to
+  executing the command.
 
-  Action is taken by executing the given --action command, which is required.
-  The current file name is exported as MH_FILE and the selected string is
-  exported as MH_STR prior to executing the command.
+  Action is taken by executing the given --action command. The current file name
+  is exported as MH_FILE and the selected string is exported as MH_STR prior to
+  executing the command.
 
   OPTIONS:
     --fuzzy-finder CMD  This command is executed to create the fuzzy finder
