@@ -48,3 +48,7 @@ essentially supports any process of decision making resulting in a string.
     ./bootstrap && ./configure && make
     sudo make install
 
+## Tips
+
+- I recommend using `--update=none-fail` or at least `--backup=numbered` with
+  `mv` actions, to avoid inadvertent file overwrites.
