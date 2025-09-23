@@ -62,10 +62,10 @@ char *ff_progress(void) {
         file = questions.qs[i].file;
         if (questions.qs[i].answered) {
             safe_asprintf(&line, "(%d/%d) '%s'\n  MH_STR: \"%s\"\n\n",
-                          i, gui.page_count, file, questions.qs[i].answer.ff.str);
+                          i+1, gui.page_count, file, questions.qs[i].answer.ff.str);
         } else {
             safe_asprintf(&line, "(%d/%d) '%s'\n  MH_STR: not set\n\n",
-                          i, gui.page_count, file);
+                          i+1, gui.page_count, file);
         }
         lines = realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
         strcat(lines, line);
