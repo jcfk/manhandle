@@ -135,7 +135,7 @@ void pager_file(void) {
 
     safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
     char *cmd;
-    safe_asprintf(&cmd, "less -fc <(%s)", opts.file_pager);
+    safe_asprintf(&cmd, "%s | less -c", opts.file_pager);
     safe_system(cmd);
     free(cmd);
     safe_unsetenv("MH_FILE");
