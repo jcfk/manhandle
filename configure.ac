@@ -16,8 +16,10 @@ if test x$HAVE_NANO == xyes ; then
 fi
 
 # Checks for libraries.
-AC_CHECK_LIB([curses], [mvwaddstr], [],
-    [AC_MSG_ERROR(["cannot compile without curses"])])
+AX_WITH_CURSES --with-ncursesw
+if test "x$ax_cv_ncursesw" != xyes; then
+   AC_MSG_ERROR(["cannot compile without wide Ncurses library (ncursesw)"])
+fi
 
 AC_CHECK_LIB([readline], [rl_callback_handler_install], [],
     [AC_MSG_ERROR(["cannot compile without readline"])])

@@ -35,7 +35,7 @@ void state_free() {
 }
 
 void curses_initialize(void) {
-    setlocale(LC_CTYPE, "");
+    setlocale(LC_ALL, "");
 
     initscr();
     cbreak();
