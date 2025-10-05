@@ -9,13 +9,16 @@ struct options opts = {
     .file_pager = NULL,
     .paradigm = NULL
 };
+
 struct questions questions;
+
 struct gui gui = {
     .resized = 0,
     .shall_exit = 0,
     .display_pid = 0,
     .rip_message = NULL
 };
+
 struct curses curses;
 
 void err(char *fmt, ...) {

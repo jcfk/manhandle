@@ -61,7 +61,7 @@ void read_whole_file(char *fpath, char **strp) {
 
     if (fseek(fp, 0L, SEEK_END) < 0) syscall_err("fseek");
 
-    unsigned long length = ftell(fp);
+    long length = ftell(fp);
     if (length < 0)
         syscall_err("ftell");
 
@@ -69,7 +69,7 @@ void read_whole_file(char *fpath, char **strp) {
 
     *strp = safe_malloc(sizeof(char)*length + 1);
     size_t transfered = fread(*strp, sizeof(char), length, fp);
-    if (transfered != length)
+    if (transfered != (size_t)length)
         err("unable to read file %s", fpath);
     (*strp)[length] = '\0';
 
@@ -93,7 +93,7 @@ int get_cmd_stdout(char *cmd, char **strp) {
 
     /* what block size? */
     int bs = GET_CMD_STDOUT_BS;
-    int alloced = 1;
+    size_t alloced = 1;
     char *str = malloc(sizeof(char)*alloced);
     str[0] = '\0';
     char block[bs];

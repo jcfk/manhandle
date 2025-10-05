@@ -57,7 +57,6 @@ char *ff_progress(void) {
     char *line;
 
     char *file;
-    char *str;
     for (int i = 0; i < gui.page_count; i++) {
         file = questions.qs[i].file;
         if (questions.qs[i].answered) {
@@ -125,9 +124,9 @@ void ff_fuzzy_find_current_answer() {
 }
 
 void ff_unanswer(int page) {
-    if (questions.qs[gui.page].answer.ff.str)
-        free(questions.qs[gui.page].answer.ff.str);
-    questions.qs[gui.page].answer.ff.str = NULL;
+    if (questions.qs[page].answer.ff.str)
+        free(questions.qs[page].answer.ff.str);
+    questions.qs[page].answer.ff.str = NULL;
 }
 
 void ff_handle_key(char key) {

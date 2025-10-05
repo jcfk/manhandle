@@ -1,3 +1,4 @@
+manhandle_CFLAGS = -Wall -Wextra
 manhandle_LDADD = @CURSES_LIBS@
 manhandle_CPPFLAGS = @CURSES_CFLAGS@
 
