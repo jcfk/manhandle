@@ -45,7 +45,7 @@ essentially supports any process of decision making resulting in a string.
 
 ## Install
 
-    ./bootstrap && ./configure && make
+    ./bootstrap && ./configure --with-ncursesw && make
     sudo make install
 
 ## Tips

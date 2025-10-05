@@ -16,7 +16,7 @@ if test x$HAVE_NANO == xyes ; then
 fi
 
 # Checks for libraries.
-AX_WITH_CURSES --with-ncursesw
+AX_WITH_CURSES
 if test "x$ax_cv_ncursesw" != xyes; then
    AC_MSG_ERROR(["cannot compile without wide Ncurses library (ncursesw)"])
 fi
