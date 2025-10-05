@@ -1,109 +1,129 @@
 #include "manhandle.h"
 
-/*
- * This readline integration is due to
- *
- * https://github.com/ulfalizer/readline-and-ncurses
- *
- * Copyright (c) 2015-2019, Ulf Magnusson <ulfalizer@gmail.com>
- */
+struct mhrl_gui {
+    int shall_exit;
+    int c;
+    int input_available;
+    char *prompt;
+    char *line;
+    char *default_line;
+};
 
-struct mhreadline mhreadline;
+struct mhrl_gui mhrl_gui = {
+    .shall_exit = 0,
+    .c = 0,
+    .input_available = 0,
+    .prompt = NULL,
+    .line = NULL,
+    .default_line = NULL
+};
 
-void readline_handler(char *line) {
-    mhreadline.reading = 0;
-    mhreadline.line = line;
+int mhrl_startup_hook(void) {
+    rl_insert_text(mhrl_gui.default_line);
+    return 0;
 }
 
-int readline_getc(FILE *dummy) {
-    mhreadline.input_available = 0;
-    return mhreadline.ch;
+int mhrl_getc_function(FILE *dummy) {
+    mhrl_gui.input_available = 0;
+    return mhrl_gui.c;
 }
 
-int readline_input_available(void) {
-    return mhreadline.input_available;
+int mhrl_input_available_hook(void) {
+    // log_debug("readline: use input_available_hook...");
+    // nodelay(curses.msg_win, TRUE);
+    // int c = wgetch(curses.msg_win);
+    // nodelay(curses.msg_win, FALSE);
+
+    // if (c == ERR)
+    //     return 0;
+
+    // ungetch(c);
+    // return 1;
+
+    return mhrl_gui.input_available;
 }
 
-void readline_read_char(char ch) {
-    mhreadline.input_available = 1;
-    mhreadline.ch = ch;
-    rl_callback_read_char();
+int mhrl_handle_esc(int count, int key) {
+    mhrl_gui.shall_exit = 1;
+    return 0;
 }
 
-void quit_readline(void) {
-    mhreadline.reading = 0;
-    mhreadline.line = NULL;
+void mhrl_line_handler(char *line) {
+    rl_callback_handler_remove();
+    mhrl_gui.shall_exit = 1;
+    mhrl_gui.line = line;
 }
 
-void print_msg_win_readline(void) {
+void print_readline(void) {
     wclear(curses.msg_win);
-    mvwprintw(curses.msg_win, 0, 0, "%s%s", rl_prompt, rl_line_buffer);
-    wmove(curses.msg_win, 0, rl_point+strlen(rl_prompt));
+
+    char *line_head = strndup(rl_line_buffer, rl_point);
+    char *line_tail = rl_line_buffer + strlen(line_head);
+    char *full_head = malloc(strlen(mhrl_gui.prompt) + strlen(line_head) + 1);
+    memcpy(full_head, mhrl_gui.prompt, strlen(mhrl_gui.prompt));
+    memcpy(full_head + strlen(mhrl_gui.prompt), line_head, strlen(line_head) + 1);
+
+    int y, x;
+    mvwaddstr(curses.msg_win, 0, 0, full_head);
+    getyx(curses.msg_win, y, x);
+    wprintw(curses.msg_win, line_tail);
+    wmove(curses.msg_win, y, x);
     wrefresh(curses.msg_win);
+
+    free(line_head);
+    free(full_head);
 }
 
-/* general purpose curses readline */
-char *msg_win_readline(char *prompt, char *default_value) {
-    struct timespec nano_escdelay = {.tv_nsec = get_escdelay() * 1000000};
+char *msg_win_readline(char *prompt, char *default_line) {
+    log_debug("readline: initialize...");
+    mhrl_gui.prompt = prompt;
+    mhrl_gui.default_line = default_line;
 
-    rl_getc_function = readline_getc;
-    rl_input_available_hook = readline_input_available;
-
+    // readline does not handle signals
     rl_catch_signals = 0;
     rl_catch_sigwinch = 0;
-    rl_change_environment = 0;
 
-    rl_callback_handler_install(prompt, readline_handler);
+    rl_redisplay_function = print_readline;
+    rl_startup_hook = mhrl_startup_hook;
+    rl_getc_function = mhrl_getc_function;
+    rl_input_available_hook = mhrl_input_available_hook;
+    rl_callback_handler_install(NULL, mhrl_line_handler);
 
+    // Initialize terminal for readline
     keypad(curses.msg_win, FALSE);
-    if (default_value)
-        rl_insert_text(default_value);
-    mhreadline.reading = 1;
+    rl_bind_keyseq("\e\e", mhrl_handle_esc);
 
-    int ch, ch2;
-    while (mhreadline.reading) {
-        /* print state */
-        if (mhreadline.resized) {
-            curses_resize();
-            mhreadline.resized = 0;
-        }
-        print_main_win();
-        print_msg_win_readline();
-
-        /* get input */
-        ch = wgetch(curses.msg_win);
-
-        /* change state */
-        switch (ch) {
-        case ESC:
-            /*
-             * We are interpreting our own escape sequences. Wait ESCDELAY and
-             * check for the presence of another character.
-             */
-            nanosleep(&nano_escdelay, NULL);
-
-            nodelay(curses.msg_win, TRUE);
-            ch2 = wgetch(curses.msg_win);
-            nodelay(curses.msg_win, FALSE);
-
-            if (ch2 < 0) {
-                quit_readline();
-            } else {
-                readline_read_char(ch);
-                readline_read_char(ch2);
-            }
+    int c;
+    for (;;) {
+        if (mhrl_gui.shall_exit)
             break;
-        case KEY_RESIZE:
-            mhreadline.resized = 1;
-            break;
-        default:
-            readline_read_char(ch);
-            break;
+
+        print_readline();
+        c = wgetch(curses.msg_win);
+
+        log_debug("readline: recieved char %d (%c)", c, c);
+
+        switch (c) {
+            // case ESC:
+            //     mhrl_gui.shall_exit = 1;
+            //     break;
+            case KEY_RESIZE:
+                curses_resize();
+                break;
+            default:
+                mhrl_gui.c = c;
+                mhrl_gui.input_available = 1;
+                rl_callback_read_char();
+                break;
         }
     }
 
-    rl_callback_handler_remove();
+    // Reset terminal settings
     keypad(curses.msg_win, TRUE);
+    mhrl_gui.shall_exit = 0;
+    mhrl_gui.c = 0;
+    mhrl_gui.input_available = 0;
 
-    return mhreadline.line;
+    log_debug("readline: end readline...");
+    return mhrl_gui.line;
 }

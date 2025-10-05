@@ -110,3 +110,46 @@ int get_cmd_stdout(char *cmd, char **strp) {
     *strp = str;
     return pclose(fp);
 }
+
+int is_dir(char *path) {
+    struct stat s;
+    int e = stat(path, &s) < 0;
+    // check errno?
+    if (e < 0 || !S_ISDIR(s.st_mode))
+        return 0;
+    return 1;
+}
+
+char *get_xdg_data_dir(void) {
+    char *home = getenv("HOME");
+    char *data_dir_tail = "/.local/share";
+    char *data_dir = malloc(strlen(home) + strlen(data_dir_tail) + 1);
+    memcpy(data_dir, home, strlen(home));
+    memcpy(data_dir + strlen(home), data_dir_tail, strlen(data_dir_tail) + 1);
+
+    if (is_dir(data_dir)) {
+        char *manhandle_tail = "/manhandle";
+        char *manhandle_data_dir = malloc(strlen(data_dir) + strlen(manhandle_tail) + 1);
+        memcpy(manhandle_data_dir, data_dir, strlen(data_dir));
+        memcpy(manhandle_data_dir + strlen(data_dir), manhandle_tail, strlen(manhandle_tail) + 1);
+        free(data_dir);
+
+        mkdir(manhandle_data_dir, 0755);
+        return manhandle_data_dir;
+    }
+
+    free(data_dir);
+    return (char *)NULL;
+}
+
+// ISO 8601
+char *get_timestamp(int for_filename) {
+    time_t current_time = time(NULL);
+    struct tm *current_tm = localtime(&current_time);
+    char *current_tstamp = malloc((size_t)24);
+    char *fmt = "%Y-%m-%dT%H:%M:%S";
+    if (for_filename)
+        fmt = "%Y%m%dT%H%M%S";
+    strftime(current_tstamp, 23, fmt, current_tm);
+    return current_tstamp;
+}

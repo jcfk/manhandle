@@ -7,6 +7,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/wait.h>
 #include <time.h>
 #include <unistd.h>
@@ -16,7 +17,6 @@
 #include "multi_choice.h"
 #include "short_answer.h"
 #include "fuzzy_finder.h"
-#include "readline.h"
 
 /* See https://www.gnu.org/software/autoconf-archive/ax_with_curses.html */
 #if defined HAVE_NCURSESW_CURSES_H
@@ -40,6 +40,8 @@
 
 struct options {
     int execute_immediately;
+    int log_level;
+    char *log_dir;
     char *editor;
     char *file_display;
     char *file_pager;
@@ -126,6 +128,10 @@ void rename_current_file(void);
 void unanswer(void);
 void handle_key(char key);
 void gui_loop(void);
+void logger_initialize(void);
+void logger_free(void);
+void log_debug(char *fmt, ...);
+void log_info(char *fmt, ...);
 void err(char *fmt, ...);
 void print_help(void);
 void print_version(void);
@@ -140,13 +146,13 @@ char *mc_progress(void);
 int mc_execute_decision(int page);
 void mc_unanswer(int page);
 void mc_handle_key(char key);
-void readline_handler(char *line);
-int readline_getc(FILE *dummy);
-int readline_input_available(void);
-void readline_read_char(char ch);
-void quit_readline(void);
-void print_msg_win_readline(void);
-char *msg_win_readline(char *prompt, char *default_value);
+int mhrl_startup_hook(void);
+int mhrl_getc_function(FILE *dummy);
+int mhrl_input_available_hook(void);
+int mhrl_handle_esc(int count, int key);
+void mhrl_line_handler(char *line);
+void print_readline(void);
+char *msg_win_readline(char *prompt, char *default_line);
 void sa_options_parse(int argc, char *argv[], int *i);
 void sa_state_initialize(int page);
 void sa_print_menu(void);
@@ -167,3 +173,6 @@ void strip_last_newline(char *str);
 void read_whole_file(char *fpath, char **strp);
 char *make_tmp_name(void);
 int get_cmd_stdout(char *cmd, char **strp);
+int is_dir(char *path);
+char *get_xdg_data_dir(void);
+char *get_timestamp(int for_filename);

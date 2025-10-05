@@ -2,6 +2,8 @@
 
 struct options opts = { 
     .execute_immediately = 0,
+    .log_level = 1,
+    .log_dir = NULL,
     .editor = NULL,
     .file_display = NULL, 
     .file_pager = NULL,
@@ -64,6 +66,23 @@ int options_parse(int argc, char *argv[]) {
             opts.file_display = argv[i];
         } else if (STREQ(argv[i], "--execute-immediately")) {
             opts.execute_immediately = 1;
+        } else if (STREQ(argv[i], "--log-level")) {
+            i += 1;
+            if (i == argc)
+                err("option --log-level takes an argument\n");
+            errno = 0;
+            int log_level = strtol(argv[i], NULL, 10);
+            if ((log_level == 0 && errno == EINVAL) || log_level < 0 || 2 < log_level)
+                err("invalid --log-level\n");
+            opts.log_level = log_level;
+        } else if (STREQ(argv[i], "--log-dir")) {
+            i += 1;
+            if (i == argc)
+                err("option --log-dir takes an argument\n");
+            char *log_dir = argv[i];
+            if (!is_dir(log_dir))
+                err("--log-dir doesn't exist\n");
+            opts.log_dir = log_dir;
         } else if (STREQ(argv[i], "--help")) {
             print_help();
         } else if (STREQ(argv[i], "--version")) {
@@ -119,6 +138,7 @@ int main(int argc, char *argv[]) {
     int i = options_parse(argc, argv);
     char **files = argv+i;
 
+    logger_initialize();
     state_initialize(files, argc-i);
     curses_initialize();
 
@@ -132,6 +152,7 @@ int main(int argc, char *argv[]) {
     if (gui.rip_message)
         printf("%s", gui.rip_message);
 
+    logger_free();
     state_free();
     exit(gui.exit_code);
 }
