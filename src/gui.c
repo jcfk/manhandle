@@ -129,7 +129,7 @@ void display_file(void) {
     wrefresh(curses.msg_win);
 }
 
-void pager_file(void) {
+void stat_pager(void) {
     def_prog_mode();
     endwin();
 
@@ -146,11 +146,11 @@ void pager_file(void) {
 }
 
 /* todo account for opts.paradigm */
-void pager_help(void) {
-    pager(GUI_HELP);
+void help_pager(void) {
+    string_pager(GUI_HELP);
 }
 
-void pager_progress(void) {
+void progress_pager(void) {
     char *progress;
     if (STREQ(opts.paradigm, MULTI_CHOICE)) {
         progress = mc_progress();
@@ -161,17 +161,21 @@ void pager_progress(void) {
     } else {
         progress = strdup("");
     }
-    pager(progress);
+    string_pager(progress);
     free(progress);
 }
 
-/* general pager */
-void pager(char *fmt, ...) {
+void log_pager(void) {
+    if (log_fpath) {
+        file_pager(log_fpath);
+    } else {
+        messenger("Logging could not be enabled; no logfile exists.");
+    }
+}
+
+void string_pager(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-
-    def_prog_mode();
-    endwin();
 
     char *tempfile = make_tmp_name();
     int tempfd = mkstemp(tempfile);
@@ -180,15 +184,21 @@ void pager(char *fmt, ...) {
     } else {
         vdprintf(tempfd, fmt, ap);
         if (close(tempfd) < 0) syscall_err("close");
-
-        char *cmd;
-        safe_asprintf(&cmd, "less -cS '%s'", tempfile);
-        safe_system(cmd);
-        free(cmd);
+        file_pager(tempfile);
         if (unlink(tempfile) < 0) syscall_err("unlink");
     }
 
     free(tempfile);
+}
+
+void file_pager(char *fpath) {
+    def_prog_mode();
+    endwin();
+
+    char *cmd;
+    safe_asprintf(&cmd, "less -cS '%s'", fpath);
+    safe_system(cmd);
+    free(cmd);
 
     reset_prog_mode();
     wrefresh(curses.main_win);
@@ -366,51 +376,54 @@ void unanswer(void) {
 
 void handle_key(char key) {
     switch (key) {
-    case 'q':
-        ask_exit();
-        break;
-    case (char)KEY_LEFT:
-    case 'h':
-        nav_prev();
-        break;
-    case (char)KEY_RIGHT:
-    case 'l':
-        nav_next();
-        break;
-    case 'v':
-        pager_file();
-        break;
-    case 'd':
-        display_file();
-        break;
-    case 'p':
-        pager_progress();
-        break;
-    case 'u':
-        unanswer();
-        break;
-    case 'w':
-        ask_write_out();
-        break;
-    case '?':
-        pager_help();
-        break;
-    case CONTROL('r'):
-        rename_current_file();
-        break;
-    case (char)KEY_RESIZE:
-        gui.resized = 1;
-        break;
-    default:
-        /* becoz each paradigm has effectively its own gui */
-        if (STREQ(opts.paradigm, MULTI_CHOICE)) {
-            mc_handle_key(key);
-        } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
-            sa_handle_key(key);
-        } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
-            ff_handle_key(key);
-        }
-        break;
+        case 'q':
+            ask_exit();
+            break;
+        case (char)KEY_LEFT:
+        case 'h':
+            nav_prev();
+            break;
+        case (char)KEY_RIGHT:
+        case 'l':
+            nav_next();
+            break;
+        case 'v':
+            stat_pager();
+            break;
+        case 'd':
+            display_file();
+            break;
+        case 'p':
+            progress_pager();
+            break;
+        case 'o':
+            log_pager();
+            break;
+        case 'u':
+            unanswer();
+            break;
+        case 'w':
+            ask_write_out();
+            break;
+        case '?':
+            help_pager();
+            break;
+        case CONTROL('r'):
+            rename_current_file();
+            break;
+        case (char)KEY_RESIZE:
+            gui.resized = 1;
+            break;
+        default:
+            /* becoz each paradigm has effectively its own gui */
+            if (STREQ(opts.paradigm, MULTI_CHOICE)) {
+                mc_handle_key(key);
+            } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
+                sa_handle_key(key);
+            } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
+                ff_handle_key(key);
+            }
+            break;
     }
 }
 

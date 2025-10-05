@@ -54,10 +54,10 @@ int options_parse(int argc, char *argv[]) {
             if (i == argc)
                 err("option --editor takes an argument\n");
             opts.editor = argv[i];
-        } else if (STREQ(argv[i], "--file-pager")) {
+        } else if (STREQ(argv[i], "--stat-pager")) {
             i += 1;
             if (i == argc)
-                err("option --file-pager takes an argument\n");
+                err("option --stat-pager takes an argument\n");
             opts.file_pager = argv[i];
         } else if (STREQ(argv[i], "--file-display")) {
             i += 1;

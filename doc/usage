@@ -19,7 +19,7 @@ DETAILED DESCRIPTION:
 
 OPTIONS:
   --editor EDITOR        This argument overrides envvar $EDITOR.
-  --file-pager CMD       Run this in a child shell and open stdout in a pager
+  --stat-pager CMD       Run this in a child shell and open stdout in a pager
                          (default: 'stat "$MH_FILE"').
   --file-display CMD     Run this in a child shell (default: none).
   --execute-immediately  Execute decisions upon entry, instead of waiting to
@@ -71,9 +71,10 @@ GUI KEYBINDINGS:
   q        Quit
   h/left   Prev page
   l/right  Next page
-  v        Run --file-pager
+  v        Run --stat-pager
   d        Run --file-display
   p        Progress pager
+  o        Log pager
   u        Un-answer current page
   w        Write out decisions
   ?        Help pager

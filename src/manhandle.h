@@ -89,6 +89,7 @@ extern struct options opts;
 extern struct questions questions;
 extern struct gui gui;
 extern struct curses curses;
+extern char *log_fpath;
 
 /* */
 
@@ -113,10 +114,12 @@ void print_menu(void);
 void print_main_win(void);
 void print_msg_win(void);
 void display_file(void);
-void pager_file(void);
-void pager_help(void);
-void pager_progress(void);
-void pager(char *fmt, ...);
+void stat_pager(void);
+void help_pager(void);
+void progress_pager(void);
+void log_pager(void);
+void string_pager(char *fmt, ...);
+void file_pager(char *fpath);
 void editor(char **strp);
 void messenger(char *fmt, ...);
 int ask(char *fmt, ...);
