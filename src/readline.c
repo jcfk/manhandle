@@ -29,17 +29,6 @@ int mhrl_getc_function(FILE *dummy) {
 }
 
 int mhrl_input_available_hook(void) {
-    // log_debug("readline: use input_available_hook...");
-    // nodelay(curses.msg_win, TRUE);
-    // int c = wgetch(curses.msg_win);
-    // nodelay(curses.msg_win, FALSE);
-
-    // if (c == ERR)
-    //     return 0;
-
-    // ungetch(c);
-    // return 1;
-
     return mhrl_gui.input_available;
 }
 
@@ -57,6 +46,9 @@ void mhrl_line_handler(char *line) {
 void print_readline(void) {
     wclear(curses.msg_win);
 
+    // Splitting the line up at the cursor seems to automatically take care of
+    // cursor positioning, so all the horrible multi-byte/multi-column cases
+    // don't need to be done by hand.
     char *line_head = strndup(rl_line_buffer, rl_point);
     char *line_tail = rl_line_buffer + strlen(line_head);
     char *full_head = malloc(strlen(mhrl_gui.prompt) + strlen(line_head) + 1);
