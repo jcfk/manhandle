@@ -15,7 +15,7 @@ files. It supports decision paradigms such as:
 
 ### Multiple choice
 
-```
+```bash
 manhandle multi-choice \
     --choice '1:mv "$MH_FILE" /home/jacob/good' \
     --choice '2:mv "$MH_FILE" /home/jacob/ok' \
@@ -30,7 +30,7 @@ the current pdf exported as `$MH_FILE`).
 
 ### Fuzzy finder
 
-```
+```bash
 manhandle fuzzy-finder \
     --fuzzy-finder 'find sync -maxdepth 5 -type d | fzf' \
     --action 'mv "$MH_FILE" "$MH_STR"' \
