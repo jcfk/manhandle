@@ -77,7 +77,7 @@ char *mc_progress(void) {
             SAFE_NEG_NE(asprintf, &line, "%-5d         %s\n", i+1,
                         questions.qs[i].file);
         }
-        lines = safe_realloc(lines, strlen(lines) + strlen(line)*sizeof(char) + 1);
+        lines = safe_realloc(lines, strlen(lines) + strlen(line) + 1);
         strcat(lines, line);
         free(line);
     }

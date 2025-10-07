@@ -81,8 +81,8 @@ void read_whole_file(char *fpath, char **strp) {
 
     SAFE_NEG(fseek, fp, 0L, SEEK_SET);
 
-    *strp = safe_malloc(sizeof(char)*length + 1);
-    size_t transfered = fread(*strp, sizeof(char), length, fp);
+    *strp = safe_malloc(length + 1);
+    size_t transfered = fread(*strp, 1, length, fp);
     if (transfered != (size_t)length)
         err("unable to read file %s", fpath);
     (*strp)[length] = '\0';
@@ -95,8 +95,7 @@ char *make_tmp_name(void) {
     if (!tmpdir)
         tmpdir = "/tmp";
     /* todo how much format checking to do here? */
-    char *tempfile = safe_malloc(sizeof(char)*
-                                 (strlen(tmpdir)+strlen("/manhandle.XXXXXX")+1));
+    char *tempfile = safe_malloc(strlen(tmpdir)+strlen("/manhandle.XXXXXX")+1);
     strcpy(tempfile, tmpdir);
     strcat(tempfile, "/manhandle.XXXXXX");
     return tempfile;
@@ -108,15 +107,15 @@ int get_cmd_stdout(char *cmd, char **strp) {
     /* what block size? */
     int bs = GET_CMD_STDOUT_BS;
     size_t alloced = 1;
-    char *str = safe_malloc(sizeof(char)*alloced);
+    char *str = safe_malloc(alloced);
     str[0] = '\0';
     char block[bs];
     while (1) {
-        if (!safe_fgets(block, sizeof(char)*bs, fp))
+        if (!safe_fgets(block, bs, fp))
             break;
         if (strlen(str)+strlen(block)+1 > alloced) {
             alloced += bs;
-            str = safe_realloc(str, sizeof(char)*alloced);
+            str = safe_realloc(str, alloced);
         }
         strcat(str, block);
     }

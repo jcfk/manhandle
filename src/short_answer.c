@@ -58,7 +58,7 @@ char *sa_progress(void) {
             SAFE_NEG_NE(asprintf, &line, "(%d/%d) '%s'\n  MH_STR: not set\n\n",
                         i+1, gui.page_count, file);
         }
-        lines = safe_realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
+        lines = safe_realloc(lines, strlen(lines)+strlen(line)+1);
         strcat(lines, line);
         free(line);
     }
