@@ -37,6 +37,18 @@
 #define REASONABLE_ESCDELAY 50
 #define STREQ(str1, str2) strcmp(str1, str2) == 0
 #define CONTROL(c) (c & 0x1f)
+#define SAFE_VAL1(errno, err, func, ...)                                \
+    do {                                                                \
+        if (func(__VA_ARGS__) == err) syscall_err(#func, errno);        \
+    } while(0)
+#define SAFE_NEG1(errno, func, ...)                                   \
+    do {                                                              \
+        if (func(__VA_ARGS__) < 0) syscall_err(#func, errno);         \
+    } while(0)
+#define SAFE_VAL(err, func, ...)    SAFE_VAL1(1, err, func, __VA_ARGS__)
+#define SAFE_VAL_NE(err, func, ...) SAFE_VAL1(0, err, func, __VA_ARGS__)
+#define SAFE_NEG(func, ...)         SAFE_NEG1(1, func, __VA_ARGS__)
+#define SAFE_NEG_NE(func, ...)      SAFE_NEG1(0, func, __VA_ARGS__)
 
 struct options {
     int execute_immediately;
@@ -133,6 +145,7 @@ void handle_key(char key);
 void gui_loop(void);
 void logger_initialize(void);
 void logger_free(void);
+void log_base(char *level, char *fmt, va_list args);
 void log_debug(char *fmt, ...);
 void log_info(char *fmt, ...);
 void err(char *fmt, ...);
@@ -163,15 +176,17 @@ char *sa_progress(void);
 int sa_execute_decision (int page);
 void sa_unanswer(int page);
 void sa_handle_key(char key);
-void syscall_err(char *syscall);
+void syscall_err(char *syscall, int reports_errno);
 void *safe_malloc(size_t size);
 void *safe_realloc(void *ptr, size_t size);
-void safe_asprintf(char **strp, char *fmt, ...);
-void safe_vasprintf(char **strp, char *fmt, va_list ap);
-int safe_system(char *command);
+char *safe_strdup(char *str);
+char *safe_strndup(char *str, size_t n);
 pid_t safe_fork(void);
-void safe_setenv(char *name, char *value, int overwrite);
-void safe_unsetenv(char *name);
+int safe_system(char *command);
+int safe_mkstemp(char *template);
+FILE *safe_fopen(char *pathname, char *mode);
+FILE *safe_popen(char *command, char *type);
+char *safe_fgets(char *s, int size, FILE *stream);
 void strip_last_newline(char *str);
 void read_whole_file(char *fpath, char **strp);
 char *make_tmp_name(void);

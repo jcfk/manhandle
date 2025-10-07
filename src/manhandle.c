@@ -24,17 +24,17 @@ struct curses curses;
 void err(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    vfprintf(stderr, fmt, ap);
+    SAFE_NEG_NE(vfprintf, stderr, fmt, ap);
     exit(1);
 }
 
 void print_help(void) {
-    printf(USAGE);
+    SAFE_NEG_NE(printf, USAGE);
     exit(0);
 }
 
 void print_version(void) {
-    printf(VERSION_FMT, PACKAGE_STRING);
+    SAFE_NEG_NE(printf, VERSION_FMT, PACKAGE_STRING);
     exit(0);
 }
 
@@ -153,7 +153,7 @@ int main(int argc, char *argv[]) {
     endwin();
 
     if (gui.rip_message)
-        printf("%s", gui.rip_message);
+        SAFE_NEG_NE(printf, "%s", gui.rip_message);
 
     logger_free();
     state_free();

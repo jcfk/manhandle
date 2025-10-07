@@ -45,20 +45,20 @@ void sa_print_menu(void) {
 }
 
 char *sa_progress(void) {
-    char *lines = strdup("");
+    char *lines = safe_strdup("");
     char *line;
 
     char *file;
     for (int i = 0; i < gui.page_count; i++) {
         file = questions.qs[i].file;
         if (questions.qs[i].answered) {
-            safe_asprintf(&line, "(%d/%d) '%s'\n  MH_STR: \"%s\"\n\n",
-                          i+1, gui.page_count, file, questions.qs[i].answer.sa.str);
+            SAFE_NEG_NE(asprintf, &line, "(%d/%d) '%s'\n  MH_STR: \"%s\"\n\n",
+                        i+1, gui.page_count, file, questions.qs[i].answer.sa.str);
         } else {
-            safe_asprintf(&line, "(%d/%d) '%s'\n  MH_STR: not set\n\n",
-                          i+1, gui.page_count, file);
+            SAFE_NEG_NE(asprintf, &line, "(%d/%d) '%s'\n  MH_STR: not set\n\n",
+                        i+1, gui.page_count, file);
         }
-        lines = realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
+        lines = safe_realloc(lines, (strlen(lines)+strlen(line)+1)*sizeof(char));
         strcat(lines, line);
         free(line);
     }
@@ -71,19 +71,19 @@ int sa_execute_decision (int page) {
     char *str = questions.qs[page].answer.sa.str;
     char *cmd = opts.pd_opts.sa.action_cmd;
 
-    safe_setenv("MH_FILE", file, 1);
-    safe_setenv("MH_STR", str, 1);
+    SAFE_NEG(setenv, "MH_FILE", file, 1);
+    SAFE_NEG(setenv, "MH_STR", str, 1);
     int status = safe_system(cmd);
     if (status)
-        safe_asprintf(&gui.rip_message, 
-                      "Failure during execution of page %d/%d. Shell:\n"
-                      "  $ MH_FILE='%s'\n"
-                      "  $ MH_STR='%s'\n"
-                      "  $ %s\n"
-                      "  exit code: %d\n",
-                      page+1, gui.page_count, file, str, cmd, status);
-    safe_unsetenv("MH_FILE");
-    safe_unsetenv("MH_STR");
+        SAFE_NEG_NE(asprintf, &gui.rip_message,
+                    "Failure during execution of page %d/%d. Shell:\n"
+                    "  $ MH_FILE='%s'\n"
+                    "  $ MH_STR='%s'\n"
+                    "  $ %s\n"
+                    "  exit code: %d\n",
+                    page+1, gui.page_count, file, str, cmd, status);
+    SAFE_NEG(unsetenv, "MH_FILE");
+    SAFE_NEG(unsetenv, "MH_STR");
 
     return status;
 }
@@ -112,7 +112,7 @@ void sa_handle_key(char key) {
             }
             if (all_files_complete()) {
                 gui.shall_exit = 1;
-                gui.rip_message = strdup("Successfully executed decisions.\n");
+                gui.rip_message = safe_strdup("Successfully executed decisions.\n");
                 return;
             }
         } else {

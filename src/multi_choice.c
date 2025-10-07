@@ -67,15 +67,15 @@ void mc_print_menu(void) {
 char *mc_progress(void) {
     char *lines;
     char *line;
-    safe_asprintf(&lines, "Page  Choice  File\n");
+    SAFE_NEG_NE(asprintf, &lines, "Page  Choice  File\n");
     for (int i = 0; i < gui.page_count; i++) {
         if (questions.qs[i].answered) {
-            safe_asprintf(&line, "%-5d %-7d %s\n", i+1,
-                questions.qs[i].answer.mc.n,
-                questions.qs[i].file);
+            SAFE_NEG_NE(asprintf, &line, "%-5d %-7d %s\n", i+1,
+                        questions.qs[i].answer.mc.n,
+                        questions.qs[i].file);
         } else {
-            safe_asprintf(&line, "%-5d         %s\n", i+1,
-                     questions.qs[i].file);
+            SAFE_NEG_NE(asprintf, &line, "%-5d         %s\n", i+1,
+                        questions.qs[i].file);
         }
         lines = safe_realloc(lines, strlen(lines) + strlen(line)*sizeof(char) + 1);
         strcat(lines, line);
@@ -89,16 +89,16 @@ int mc_execute_decision(int page) {
     char *file = questions.qs[page].file;
     char *cmd = opts.pd_opts.mc.choices[n];
 
-    safe_setenv("MH_FILE", file, 1);
+    SAFE_NEG(setenv, "MH_FILE", file, 1);
     int status = safe_system(cmd);
     if (status)
-        safe_asprintf(&gui.rip_message, 
-                      "Failure during execution of page %d/%d. Shell:\n"
-                      "  $ MH_FILE='%s'\n"
-                      "  $ %s\n"
-                      "  exit code: %d\n",
-                      page+1, gui.page_count, file, cmd, status);
-    safe_unsetenv("MH_FILE");
+        SAFE_NEG_NE(asprintf, &gui.rip_message,
+                    "Failure during execution of page %d/%d. Shell:\n"
+                    "  $ MH_FILE='%s'\n"
+                    "  $ %s\n"
+                    "  exit code: %d\n",
+                    page+1, gui.page_count, file, cmd, status);
+    SAFE_NEG(unsetenv, "MH_FILE");
 
     return status;
 }
@@ -132,7 +132,7 @@ void mc_handle_key(char key) {
         }
         if (all_files_complete()) {
             gui.shall_exit = 1;
-            gui.rip_message = strdup("Successfully executed decisions.\n");
+            gui.rip_message = safe_strdup("Successfully executed decisions.\n");
             return;
         }
     } else {

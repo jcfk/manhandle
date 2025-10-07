@@ -10,7 +10,7 @@ void state_initialize(char *files[], int file_count) {
     questions.qs = safe_malloc((size_t)file_count*sizeof(struct question));
     for (int i = 0; i < file_count; i++) {
         questions.qs[i].answered = 0;
-        questions.qs[i].file = strdup(files[i]);
+        questions.qs[i].file = safe_strdup(files[i]);
 
         if (STREQ(opts.paradigm, MULTI_CHOICE)) {
             mc_state_initialize(i);
@@ -65,12 +65,12 @@ void curses_free(void) {
 
 void print_menubar(void) {
     mvwprintw(curses.main_win, GUI_MENUBAR_Y, GUI_MENUBAR_X, 
-        "q:Quit   h/left:Prev   l/right:Next   ?:Help");
+              "q:Quit   h/left:Prev   l/right:Next   ?:Help");
 }
 
 void print_file_meta(void) {
     mvwprintw(curses.main_win, GUI_FILEMETA_Y, GUI_FILEMETA_X,
-              "(%d/%d) '%s'", gui.page+1, gui.page_count, 
+              "(%d/%d) '%s'", gui.page+1, gui.page_count,
               questions.qs[gui.page].file);
 }
 
@@ -110,19 +110,16 @@ void display_file(void) {
     pid_t pid = safe_fork();
     if (pid == 0) {
         int fd = open("/dev/null", O_RDONLY);
-        if (fd < 0)
-            syscall_err("open");
+        if (fd < 0) syscall_err("open", 1);
 
-        if (dup2(fd, STDIN_FILENO) < 0) syscall_err("dup2");
-        if (close(fd) < 0) syscall_err("close");
+        SAFE_NEG(dup2, fd, STDIN_FILENO);
+        SAFE_NEG(close, fd);
 
-        safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
-
-        execl("/bin/sh", "sh", "-c", opts.file_display, NULL);
-        syscall_err("execl");
+        SAFE_NEG(setenv, "MH_FILE", questions.qs[gui.page].file, 1);
+        SAFE_NEG(execl, "/bin/sh", "sh", "-c", opts.file_display, NULL);
     }
 
-    if (waitpid(pid, NULL, 0) < 0) syscall_err("waitpid");
+    SAFE_NEG(waitpid, pid, NULL, 0);
 
     reset_prog_mode();
     wrefresh(curses.main_win);
@@ -133,12 +130,13 @@ void stat_pager(void) {
     def_prog_mode();
     endwin();
 
-    safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
+    SAFE_NEG(setenv, "MH_FILE", questions.qs[gui.page].file, 1);
     char *cmd;
-    safe_asprintf(&cmd, "%s | less -c", opts.file_pager);
+    SAFE_NEG_NE(asprintf, &cmd, "%s | less -c", opts.file_pager);
     safe_system(cmd);
+
     free(cmd);
-    safe_unsetenv("MH_FILE");
+    SAFE_NEG(unsetenv, "MH_FILE");
 
     reset_prog_mode();
     wrefresh(curses.main_win);
@@ -151,18 +149,18 @@ void help_pager(void) {
 }
 
 void progress_pager(void) {
-    char *progress;
+    char *progress = NULL;
     if (STREQ(opts.paradigm, MULTI_CHOICE)) {
         progress = mc_progress();
     } else if (STREQ(opts.paradigm, SHORT_ANSWER)) {
         progress = sa_progress();
     } else if (STREQ(opts.paradigm, FUZZY_FINDER)) {
         progress = ff_progress();
-    } else {
-        progress = strdup("");
     }
-    string_pager(progress);
-    free(progress);
+    if (progress) {
+        string_pager(progress);
+        free(progress);
+    }
 }
 
 void log_pager(void) {
@@ -178,15 +176,12 @@ void string_pager(char *fmt, ...) {
     va_start(ap, fmt);
 
     char *tempfile = make_tmp_name();
-    int tempfd = mkstemp(tempfile);
-    if (tempfd < 0) {
-        syscall_err("mkstemp");
-    } else {
-        vdprintf(tempfd, fmt, ap);
-        if (close(tempfd) < 0) syscall_err("close");
-        file_pager(tempfile);
-        if (unlink(tempfile) < 0) syscall_err("unlink");
-    }
+    int tempfd = safe_mkstemp(tempfile);
+
+    SAFE_NEG_NE(vdprintf, tempfd, fmt, ap);
+    SAFE_NEG(close, tempfd);
+    file_pager(tempfile);
+    SAFE_NEG(unlink, tempfile);
 
     free(tempfile);
 }
@@ -196,8 +191,9 @@ void file_pager(char *fpath) {
     endwin();
 
     char *cmd;
-    safe_asprintf(&cmd, "less -cS '%s'", fpath);
+    SAFE_NEG_NE(asprintf, &cmd, "less -cS '%s'", fpath);
     safe_system(cmd);
+
     free(cmd);
 
     reset_prog_mode();
@@ -216,32 +212,30 @@ void editor(char **strp) {
     endwin();
 
     char *tempfile = make_tmp_name();
-    int tempfd = mkstemp(tempfile);
-    if (tempfd < 0) {
-        syscall_err("mkstemp");
+    int tempfd = safe_mkstemp(tempfile);
+
+    if (*strp)
+        SAFE_NEG_NE(dprintf, tempfd, "%s", *strp);
+
+    SAFE_NEG(close, tempfd);
+
+    char *cmd;
+    SAFE_NEG_NE(asprintf, &cmd, "%s %s", opts.editor, tempfile);
+    int status = safe_system(cmd);
+    free(cmd);
+
+    if (status) {
+        /* todo this message for example could be overwritten by a message in
+            a calling function */
+        messenger("Editor exited with code %d. No changes saved.", status);
     } else {
-        if (*strp)
-            dprintf(tempfd, "%s", *strp);
-        if (close(tempfd) < 0) syscall_err("close");
-
-        char *cmd;
-        safe_asprintf(&cmd, "%s %s", opts.editor, tempfile);
-        int status = safe_system(cmd);
-        free(cmd);
-
-        if (status) {
-            /* todo this message for example could be overwritten by a message in
-               a calling function */
-            messenger("Editor exited with code %d. No changes saved.", status);
-        } else {
-            char *new_str;
-            read_whole_file(tempfile, &new_str);
-            if (*strp) free(*strp);
-            *strp = new_str;
-        }
-
-        if (unlink(tempfile) < 0) syscall_err("unlink");
+        char *new_str;
+        read_whole_file(tempfile, &new_str);
+        if (*strp) free(*strp);
+        *strp = new_str;
     }
+
+    SAFE_NEG(unlink, tempfile);
 
     free(tempfile);
 
@@ -255,24 +249,28 @@ void messenger(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
     free(gui.message);
-    safe_vasprintf(&gui.message, fmt, ap);
+    SAFE_NEG_NE(vasprintf, &gui.message, fmt, ap);
 }
 
 int ask(char *fmt, ...) {
     va_list ap;
     va_start(ap, fmt);
-    char* message;
-    safe_vasprintf(&message, fmt, ap);
 
+    char* message;
+    SAFE_NEG_NE(vasprintf, &message, fmt, ap);
     wclear(curses.msg_win);
     mvwprintw(curses.msg_win, 0, 0, "%s", message);
     wrefresh(curses.msg_win);
     free(message);
 
+    // TODO this should be int
     char key;
     for (;;) {
         key = (char)wgetch(curses.msg_win);
         switch (key) {
+            case ERR:
+                syscall_err("wgetch", 1);
+                break;
             case 'y':
                 wclear(curses.msg_win);
                 wrefresh(curses.msg_win);
@@ -323,7 +321,7 @@ void ask_write_out(void) {
         }
     }
 
-    gui.rip_message = strdup("Successfully executed decisions.\n");
+    gui.rip_message = safe_strdup("Successfully executed decisions.\n");
     gui.shall_exit = 1;
 }
 
@@ -344,10 +342,10 @@ void rename_current_file(void) {
         return;
 
     char *cmd;
-    asprintf(&cmd, "mv \"$MH_FILE\" \"%s\"", new_filename);
-    safe_setenv("MH_FILE", questions.qs[gui.page].file, 1);
+    SAFE_NEG_NE(asprintf, &cmd, "mv \"$MH_FILE\" \"%s\"", new_filename);
+    SAFE_NEG(setenv, "MH_FILE", questions.qs[gui.page].file, 1);
     int status = safe_system(cmd);
-    safe_unsetenv("MH_FILE");
+    SAFE_NEG(unsetenv, "MH_FILE");
     free(cmd);
     if (status) {
         messenger("Unable to rename file (mv exited with status %d).", status);

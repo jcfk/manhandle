@@ -49,9 +49,9 @@ void print_readline(void) {
     // Splitting the line up at the cursor seems to automatically take care of
     // cursor positioning, so all the horrible multi-byte/multi-column cases
     // don't need to be done by hand.
-    char *line_head = strndup(rl_line_buffer, rl_point);
+    char *line_head = safe_strndup(rl_line_buffer, rl_point);
     char *line_tail = rl_line_buffer + strlen(line_head);
-    char *full_head = malloc(strlen(mhrl_gui.prompt) + strlen(line_head) + 1);
+    char *full_head = safe_malloc(strlen(mhrl_gui.prompt) + strlen(line_head) + 1);
     memcpy(full_head, mhrl_gui.prompt, strlen(mhrl_gui.prompt));
     memcpy(full_head + strlen(mhrl_gui.prompt), line_head, strlen(line_head) + 1);
 
@@ -96,6 +96,9 @@ char *msg_win_readline(char *prompt, char *default_line) {
         log_debug("readline: recieved char %d (%c)", c, c);
 
         switch (c) {
+            case ERR:
+                syscall_err("wgetch", 1);
+                break;
             // case ESC:
             //     mhrl_gui.shall_exit = 1;
             //     break;
