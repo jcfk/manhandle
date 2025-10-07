@@ -2,6 +2,7 @@
 
 struct mhrl_gui {
     int shall_exit;
+    int exit_without_line;
     int c;
     int input_available;
     char *prompt;
@@ -11,6 +12,7 @@ struct mhrl_gui {
 
 struct mhrl_gui mhrl_gui = {
     .shall_exit = 0,
+    .exit_without_line = 0,
     .c = 0,
     .input_available = 0,
     .prompt = NULL,
@@ -34,6 +36,7 @@ int mhrl_input_available_hook(void) {
 
 int mhrl_handle_esc(int count, int key) {
     mhrl_gui.shall_exit = 1;
+    mhrl_gui.exit_without_line = 1;
     return 0;
 }
 
@@ -67,7 +70,7 @@ void print_readline(void) {
 }
 
 char *msg_win_readline(char *prompt, char *default_line) {
-    log_debug("readline: initialize...");
+    log_debug("readline: begin readline...");
     mhrl_gui.prompt = prompt;
     mhrl_gui.default_line = default_line;
 
@@ -120,5 +123,6 @@ char *msg_win_readline(char *prompt, char *default_line) {
     mhrl_gui.input_available = 0;
 
     log_debug("readline: end readline...");
+    if (mhrl_gui.exit_without_line) return (char *)NULL;
     return mhrl_gui.line;
 }
