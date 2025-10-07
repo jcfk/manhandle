@@ -129,7 +129,7 @@ void ff_unanswer(int page) {
     questions.qs[page].answer.ff.str = NULL;
 }
 
-void ff_handle_key(char key) {
+void ff_handle_key(int key) {
     if (key == 'f') {
         if (opts.execute_immediately && questions.qs[gui.page].answered) {
             messenger("Decision for page %d already executed.", gui.page+1);

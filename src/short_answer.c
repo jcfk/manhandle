@@ -94,7 +94,7 @@ void sa_unanswer(int page) {
     questions.qs[page].answer.sa.str = NULL;
 }
 
-void sa_handle_key(char key) {
+void sa_handle_key(int key) {
     if (key == 'e') {
         if (opts.execute_immediately && questions.qs[gui.page].answered) {
             messenger("Decision for page %d already executed.", gui.page+1);

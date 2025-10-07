@@ -107,7 +107,7 @@ void mc_unanswer(int page) {
     questions.qs[page].answer.mc.n = -1;
 }
 
-void mc_handle_key(char key) {
+void mc_handle_key(int key) {
     int n = key - '0';
     if (n < 0 || 9 < n)
         return;

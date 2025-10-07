@@ -264,9 +264,9 @@ int ask(char *fmt, ...) {
     free(message);
 
     // TODO this should be int
-    char key;
+    int key;
     for (;;) {
-        key = (char)wgetch(curses.msg_win);
+        key = wgetch(curses.msg_win);
         switch (key) {
             case ERR:
                 syscall_err("wgetch", 1);
@@ -372,16 +372,16 @@ void unanswer(void) {
     }
 }
 
-void handle_key(char key) {
+void handle_key(int key) {
     switch (key) {
         case 'q':
             ask_exit();
             break;
-        case (char)KEY_LEFT:
+        case KEY_LEFT:
         case 'h':
             nav_prev();
             break;
-        case (char)KEY_RIGHT:
+        case KEY_RIGHT:
         case 'l':
             nav_next();
             break;
@@ -409,7 +409,7 @@ void handle_key(char key) {
         case CONTROL('r'):
             rename_current_file();
             break;
-        case (char)KEY_RESIZE:
+        case KEY_RESIZE:
             gui.resized = 1;
             break;
         default:
@@ -426,7 +426,7 @@ void handle_key(char key) {
 }
 
 void gui_loop(void) {
-    char key;
+    int key;
     for (;;) {
         /* print state */
         if (gui.resized) {
@@ -437,7 +437,7 @@ void gui_loop(void) {
         print_msg_win();
 
         /* get input */
-        key = (char)wgetch(curses.msg_win);
+        key = wgetch(curses.msg_win);
 
         /* change state */
         messenger("");
