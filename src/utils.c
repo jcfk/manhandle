@@ -129,36 +129,26 @@ int get_cmd_stdout(char *cmd, char **strp) {
 
 int is_dir(char *path) {
     struct stat s;
-    int e = stat(path, &s) < 0;
-    if ((e < 0 && (errno == EACCES || errno == ENOENT || errno == ENOTDIR))
-        || !S_ISDIR(s.st_mode))
-        return 0;
-    return 1;
-}
-
-/* TODO actually use XDG_DATA_DIR */
-char *get_xdg_data_dir(void) {
-    char *home = getenv("HOME");
-    if (!home) return (char *)NULL;
-
-    char *data_dir_tail = "/.local/share";
-    char *data_dir = safe_malloc(strlen(home) + strlen(data_dir_tail) + 1);
-    memcpy(data_dir, home, strlen(home));
-    memcpy(data_dir + strlen(home), data_dir_tail, strlen(data_dir_tail) + 1);
-
-    if (!is_dir(data_dir)) {
-        free(data_dir);
-        return (char *)NULL;
+    int e = stat(path, &s);
+    if (e < 0) {
+        if (errno == EACCES || errno == ENOENT || errno == ENOTDIR) return 0;
+        syscall_err("stat", 1);
     }
 
-    char *manhandle_tail = "/manhandle";
-    char *manhandle_data_dir = malloc(strlen(data_dir) + strlen(manhandle_tail) + 1);
-    memcpy(manhandle_data_dir, data_dir, strlen(data_dir));
-    memcpy(manhandle_data_dir + strlen(data_dir), manhandle_tail, strlen(manhandle_tail) + 1);
-    free(data_dir);
+    if (S_ISDIR(s.st_mode)) return 1;
+    return 0;
+}
+
+char *get_xdg_data_dir(void) {
+    char *xdg_data_dir = getenv("XDG_DATA_HOME");
+    if (!xdg_data_dir || !is_dir(xdg_data_dir)) return (char *)NULL;
+
+    char *manhandle_data_dir = NULL;
+    SAFE_NEG_NE(asprintf, &manhandle_data_dir, "%s/manhandle", xdg_data_dir);
 
     if (!is_dir(manhandle_data_dir))
         SAFE_NEG(mkdir, manhandle_data_dir, 0755);
+
     return manhandle_data_dir;
 }
 
