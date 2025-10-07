@@ -263,7 +263,6 @@ int ask(char *fmt, ...) {
     wrefresh(curses.msg_win);
     free(message);
 
-    // TODO this should be int
     int key;
     for (;;) {
         key = wgetch(curses.msg_win);
@@ -374,6 +373,9 @@ void unanswer(void) {
 
 void handle_key(int key) {
     switch (key) {
+        case ERR:
+            syscall_err("wgetch", 1);
+            break;
         case 'q':
             ask_exit();
             break;
