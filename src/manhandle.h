@@ -37,18 +37,14 @@
 #define REASONABLE_ESCDELAY 50
 #define STREQ(str1, str2) strcmp(str1, str2) == 0
 #define CONTROL(c) (c & 0x1f)
-#define SAFE_VAL1(errno, err, func, ...)                                \
+#define SAFE1(errno, err, func, ...)                                \
     do {                                                                \
-        if (func(__VA_ARGS__) == err) syscall_err(#func, errno);        \
+        if (func(__VA_ARGS__) err) syscall_err(#func, errno);        \
     } while(0)
-#define SAFE_NEG1(errno, func, ...)                                   \
-    do {                                                              \
-        if (func(__VA_ARGS__) < 0) syscall_err(#func, errno);         \
-    } while(0)
-#define SAFE_VAL(err, func, ...)    SAFE_VAL1(1, err, func, __VA_ARGS__)
-#define SAFE_VAL_NE(err, func, ...) SAFE_VAL1(0, err, func, __VA_ARGS__)
-#define SAFE_NEG(func, ...)         SAFE_NEG1(1, func, __VA_ARGS__)
-#define SAFE_NEG_NE(func, ...)      SAFE_NEG1(0, func, __VA_ARGS__)
+#define SAFE_VAL(err, func, ...)    SAFE1(1, == err, func, __VA_ARGS__)
+#define SAFE_VAL_NE(err, func, ...) SAFE1(0, == err, func, __VA_ARGS__)
+#define SAFE_NEG(func, ...)         SAFE1(1, < 0, func, __VA_ARGS__)
+#define SAFE_NEG_NE(func, ...)      SAFE1(0, < 0, func, __VA_ARGS__)
 
 struct options {
     int execute_immediately;
