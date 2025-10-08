@@ -119,6 +119,7 @@ char *msg_win_readline(char *prompt, char *default_line) {
     // Reset terminal settings
     keypad(curses.msg_win, TRUE);
     mhrl_gui.shall_exit = 0;
+    mhrl_gui.exit_without_line = 0;
     mhrl_gui.c = 0;
     mhrl_gui.input_available = 0;
 
