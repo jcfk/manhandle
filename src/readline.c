@@ -71,7 +71,14 @@ void print_readline(void) {
 
 char *msg_win_readline(char *prompt, char *default_line) {
     log_debug("readline: begin readline...");
+
+    // Initialize gui state
+    mhrl_gui.shall_exit = 0;
+    mhrl_gui.exit_without_line = 0;
+    mhrl_gui.c = 0;
+    mhrl_gui.input_available = 0;
     mhrl_gui.prompt = prompt;
+    mhrl_gui.line = NULL;
     mhrl_gui.default_line = default_line;
 
     // readline does not handle signals
@@ -105,7 +112,7 @@ char *msg_win_readline(char *prompt, char *default_line) {
             // case ESC:
             //     mhrl_gui.shall_exit = 1;
             //     break;
-            case KEY_RESIZE:
+            case KEY_RESIZE:  // this is given even if keypad() is false
                 curses_resize();
                 break;
             default:
@@ -118,10 +125,6 @@ char *msg_win_readline(char *prompt, char *default_line) {
 
     // Reset terminal settings
     keypad(curses.msg_win, TRUE);
-    mhrl_gui.shall_exit = 0;
-    mhrl_gui.exit_without_line = 0;
-    mhrl_gui.c = 0;
-    mhrl_gui.input_available = 0;
 
     log_debug("readline: end readline...");
     if (mhrl_gui.exit_without_line) return (char *)NULL;
